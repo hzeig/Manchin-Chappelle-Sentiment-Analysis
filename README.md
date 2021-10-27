@@ -6,7 +6,7 @@ October 27th, 2021
 - Joe Manchin's rejection of the climate bill proposed by Democrats in Congress
 - Dave Chapelle's trans-critical comments in his stand-up comedy special hosted on Netflix
 
-The purpose of this study is to investigate population sentiments of these controversies 
+### The purpose of this study is to investigate population sentiments of these controversies 
 using sentiment analysis of title and text data from related searches in
 popular discussion website of 430 million users, Reddit.
 
