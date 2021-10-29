@@ -3,7 +3,7 @@
 October 27th, 2021
 
 ### A comparison of reddit sentiments regarding the following recent controversies:  
-- Joe Manchin's rejection of the climate bill proposed by Democrats in Congress
+- Joe Manchin's rejection of climate change mitigating strategies in the recent infrastructure bill proposed by Democrats in Congress
 - Dave Chapelle's trans-critical comments in his stand-up comedy special hosted on Netflix
 
 The purpose of this study is to investigate population sentiments of these controversies 
