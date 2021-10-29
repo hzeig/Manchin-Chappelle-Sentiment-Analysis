@@ -1,0 +1,9 @@
+## Sentiment Analyses
+
+### Libraries:
+
+```{r echo=FALSE}
+library(sentimentr)
+library(syuzhet)
+```
+

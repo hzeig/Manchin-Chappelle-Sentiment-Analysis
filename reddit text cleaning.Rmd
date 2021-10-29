@@ -1,0 +1,90 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+## Text Cleaning
+
+### Libraries
+```{r}
+library(tm)
+```
+
+
+### Build corpus 
+
+```{r}
+dcfull <- read.csv('Dave Chapelle Comments.csv')
+
+corpus <- iconv(dcfull$comment, to = "utf-8")
+corpus <- Corpus(VectorSource(corpus))
+inspect(corpus[1:5])
+```
+### Clean Text
+
+```{r}
+corpus <- tm_map(corpus, tolower)
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, removeWords, c('dave', 'chapelle', 'netflix', 'trans', 'walkout', 'chappelle','just','like'))
+
+remove_newline <- function(x) gsub('\n','',x)
+corpus <- tm_map(corpus,content_transformer(remove_newline))
+
+inspect(corpus[1:5])
+
+writeLines(as.character(corpus),"DC cleaned stop.txt")
+
+
+```
+
+
+### Document Term Matrix & Term Document Matrix
+
+```{r}
+ns_corpus <- tm_map(corpus, removeWords, stopwords('english'))
+ns_corpus
+
+writeLines(as.character(ns_corpus),"DC cleaned nostop.txt")
+
+dtm <- DocumentTermMatrix(ns_corpus)
+dtm
+class(dtm)
+sapply(dtm, class)
+findFreqTerms(dtm,20)
+findAssocs(dtm, "wrong", 0.2)
+
+dtm <- as.matrix(dtm)
+dtm[1:10, 1:20]
+
+tdm <- TermDocumentMatrix(ns_corpus)
+tdm<- as.matrix(tdm)
+tdm[1:100, 1:20]
+
+# Bar Plot
+w <- rowSums(tdm)
+w <- subset(w, w>=200)
+barplot(w, las = 2, col = rainbow(50))
+
+library(wordcloud)
+w <- sort(rowSums(tdm),decreasing = TRUE)
+set.seed(222)
+wordcloud(words = names(w),
+          freq = w,
+          max.words =150,
+          random.order = F,
+          min.freq = 150,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5,.3))
+
+
+```
+
+
+```{r}
+
+
+
+```
+

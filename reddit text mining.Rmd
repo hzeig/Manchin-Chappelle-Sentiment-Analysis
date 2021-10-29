@@ -1,0 +1,35 @@
+## Data collection
+
+### Libraries: RedditExtractoR
+
+```{r}
+library(RedditExtractoR)
+
+```
+
+### Extract data for Dave Chapelle
+
+```{r}
+
+dc_urls <- find_thread_urls(keywords="dave chapelle netflix trans", sort_by = 'relevance', period = 'month')
+
+dc_comments <- get_thread_content(dc_urls$url)
+
+write.csv(dc_comments[["threads"]], "./Dave Chapelle Threads.csv", row.names = FALSE)
+write.csv(dc_comments[["comments"]], "./Dave Chapelle Comments.csv", row.names = FALSE)
+
+```
+
+### Extract data for Joe Manchin
+
+```{r}
+
+jm_urls <- find_thread_urls(keywords="joe manchin climate bill", sort_by = 'relevance', period = 'month')
+
+jm_comments <- get_thread_content(jm_urls$url)
+
+write.csv(jm_comments[["threads"]], "./Joe Manchin Threads.csv", row.names = FALSE)
+write.csv(jm_comments[["comments"]], "./Joe Manchin Comments.csv", row.names = FALSE)
+```
+
+
