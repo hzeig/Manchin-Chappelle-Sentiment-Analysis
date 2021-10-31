@@ -13,6 +13,8 @@ library(RedditExtractoR)
 
 dc_urls <- find_thread_urls(keywords="dave chapelle netflix trans", sort_by = 'relevance', period = 'month')
 
+unique(dc_urls$subreddit)
+
 dc_comments <- get_thread_content(dc_urls$url)
 
 write.csv(dc_comments[["threads"]], "./Dave Chapelle Threads.csv", row.names = FALSE)
@@ -25,6 +27,8 @@ write.csv(dc_comments[["comments"]], "./Dave Chapelle Comments.csv", row.names =
 ```{r}
 
 jm_urls <- find_thread_urls(keywords="joe manchin climate bill", sort_by = 'relevance', period = 'month')
+
+unique(jm_urls$subreddit)
 
 jm_comments <- get_thread_content(jm_urls$url)
 
