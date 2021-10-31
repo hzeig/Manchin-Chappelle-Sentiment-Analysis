@@ -3,7 +3,7 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
-## Text Cleaning
+## Text Cleaning & Wordclouds
 
 ### Libraries
 ```{r}
@@ -27,7 +27,7 @@ corpus <- tm_map(corpus, tolower)
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, stripWhitespace)
-corpus <- tm_map(corpus, removeWords, c('dave', 'chapelle', 'netflix', 'trans', 'walkout', 'really', 'well','get', 'hes', 'chappelle','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get'))
+corpus <- tm_map(corpus, removeWords, c('dave', 'chapelle', 'netflix', 'trans', 'walkout', 'really', 'well','get', 'hes', 'chappelle','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get','actually', 'things', 'theyre','many','take','though','trying','making','need','lot','pretty','sure'))
 
 writeLines(as.character(corpus),"DC cleaned stop.txt")
 
@@ -83,7 +83,7 @@ jcorpus <- tm_map(jcorpus, tolower)
 jcorpus <- tm_map(jcorpus, removePunctuation)
 jcorpus <- tm_map(jcorpus, removeNumbers)
 jcorpus <- tm_map(jcorpus, stripWhitespace)
-jcorpus <- tm_map(jcorpus, removeWords, c('joe', 'manchin','just','like','people','will','can','dont','also','isnt','really','still','doesnt','see','well','actually','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get'))
+jcorpus <- tm_map(jcorpus, removeWords, c('joe', 'manchin','just','like','people','will','can','dont','also','isnt','really','still','doesnt','see','well','actually','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get','fuck'))
 
 writeLines(as.character(corpus),"JM cleaned stop.txt")
 ```
@@ -112,7 +112,7 @@ wordcloud(words = names(w),
           freq = w,
           max.words =150,
           random.order = F,
-          min.freq = 150,
+          min.freq = 100,
           colors = brewer.pal(8, 'Dark2'),
           scale = c(3,.1))
 

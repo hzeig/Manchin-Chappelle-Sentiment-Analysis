@@ -3,78 +3,136 @@ output: html_document
 editor_options: 
   chunk_output_type: inline
 ---
-## Sentiment Analyses
+# Sentiment Analyses EDA
 
 ### Libraries:
 
 ```{r echo=FALSE}
-library(syuzhet)
 library(sentimentr)
+library(vader)
 library(lubridate)
 library(ggplot2)
 library(scales)
 library(reshape2)
 library(dplyr)
-```
-
-## Dave Chapelle analysis
-
-```{r}
-# Read file
-dc_stop <- readLines("DC cleaned stop.txt")
-dc_nostop <- readLines("DC cleaned nostop.txt") # 3000+ less elements, why
-```
-
-
-```{r}
-
-# NRC Sentiment scores
-s <- get_nrc_sentiment(dc_stop)
-n <- get_nrc_sentiment(dc_nostop)
-df <- rbind(s,n)
-
-
-
-get_nrc_sentiment("worst") 
-# colorful words that have no sentiment value: 
-# 'worst', 'fucked', 'transphobic', 'homophobic'
-
-
-```
-
-
-
-```{r}
-# sentimentr
-dwz <- average_downweighted_zero(dc_stop)
-wms <- average_weighted_mixed_sentiment(s)
-wms
-dwz
-
-```
-
-
-# Trying Valence Aware Dictionary and sEntiment Reasoner (VADER)
-
-```{r}
-library(vader)
 library(tidyverse)
-library(dplyr)
+library(stringr)
 
-dcfull <- read.csv("Dave Chapelle Comments.csv")
-dcfull$comment[1:5]
-dc_sents <- vader_df(dcfull$comment)
-View(dc_sents)
-write.csv(dc_sents,"DC vader sents.csv", row.names = F)
-dc_sents <- read.csv('DC vader sents.csv')
+# rm(list=ls())
 
-str(dc_sents)
+```
 
+## Dave Chapelle
+
+```{r}
+# import DFs
+dc_comm <- read.csv("Dave Chapelle Comments.csv")
+dc_thre <- read.csv("Dave Chapelle Threads.csv")
+
+
+# merge into one DF
+dc_thre <- dc_thre %>% dplyr::select(subreddit, url, thread.author=author, 
+                                     thread.date=date, thread.title=title, 
+                                     thread.text=text, 
+                                     thread.score=score, 
+                                     thread.number.comments=comments)
+
+dc_comm <- dc_comm %>% dplyr::select(url, comment.author=author, 
+                                     comment.date=date, comment, 
+                                     comment.score=score, comment_id)
+
+
+dc_full <- merge(dc_thre, dc_comm)
+
+```
+
+
+# sentimentr 
+
+```{r}
+
+# threads
+
+dc_sr_thre <- get_sentences(dc_thre$thread.text)
+dc_sr_thre <- sentiment_by(dc_sr_thre, dc_thre$thread.text)
+plot(dc_sr_thre$word_count, dc_sr_thre$ave_sentiment)
+
+df <- merge(dc_sr_thre, dc_thre)
+cor(df$thread.score, df$thread.number.comments)
+cor(df$thread.score, df$ave_sentiment)
+
+r
+
+
+# comments
+
+dc_sr_comm <- get_sentences(dc_full$comment)
+dc_sr_comm <- sentiment_by(dc_sr_comm, dc_full$comment)
+
+mean(dc_sr_comm$sentiment)
+
+```
+
+
+# Valence Aware Dictionary and sEntiment Reasoner (VADER)
+
+```{r}
+# dc_vcsents <- vader_df(dc_comm$comment)
+# dc_vtsents <- vader_df(dc_thre$text)
+# write.csv(dc_vcsents,"DC vader comment sents.csv", row.names = F)
+# write.csv(dc_vtsents, "DC vader thread sents.csv", row.names = F)
+
+dc_vcsents <- read.csv('DC vader comment sents.csv')
+dc_vtsents <- read.csv('DC vader thread sents.csv')
+
+dc_sents <- rename(dc_sents,comment = text)
+
+head(dc_sents)
+dc_uv <- merge(dcfull,dc_sentsM)
+head(dc_uv)
+write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
+
+View(dc_uv)
+
+cor(dc_uv)
+
+
+```
+
+
+```{r}
 dsent <- dc_sents[,c(3:6)]
 
 plot(dsent$pos, dsent$neg)
 # drops <- c("word_scores","but_count")
 # dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
+```
+```{r}
+# measuring for average length of comment
+
+play <- dc_sents$text
+
+play3 <- sapply(play, str_count)
+head(play3)
+
+play2 <- strsplit(play, " ")
+
+wl <- sapply(play2, length)
+
+mean(wl)
+summary(wl)
+
+plot(density(wl))
+
+library(MASS)
+```
+
+
+## sentimentr
+
+```{r}
+
+
 ```
 
 
@@ -100,23 +158,15 @@ dtype
 ### upvote analysis
 
 ```{r}
-library(dplyr)
 
-dc_sents <- rename(dc_sents,comment = text)
 
-head(dc_sents)
-dc_uv <- merge(dcfull,dc_sentsM)
-head(dc_uv)
-write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
-
-library(ggplot2)
-
-View(dc_uv)
-
-cor(dc_uv)
 
 ```
 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Joe Manchin analysis
 
@@ -156,51 +206,3 @@ boxplot(jsent_type, xlab='measure', ylab='valence', ann=T)
 
 ```
 
-
-
-# Finding the right domain lexicon for each post
-
-```{r}
-bestfitLexicon <- function(url, subredditLexicon){
-  
-}
-```
-
-```{r}
-
-library(dplyr)
-
-subreddit_lex <- read.table(file = 'subreddits/3DS.tsv', sep = '\t', header = F)
-
-class(subreddit_lex$V1)
-class(dcfull$comment)
-is.element(sample$comment[1], subreddit_lex$V1)
-
-class(subreddit_lex$V1)
-
-sample <- dcfull %>% filter(url == "https://www.reddit.com/r/SocialJusticeInAction/comments/qczafo/demands_from_the_netflix_trans_team_after_the/") 
-
-sample
-
-length(grep(subreddit_lex$V1[5],sample$comment))
-grep(subreddit_lex$V1[5],sample$comment)
-
-
-vec <- sample$comment
-count = 0
-x = subreddit_lex$V1
-  
-# looping over vector values
-for( i in vec){
-    
-    # check if the value is equal to x
-    if(vec[i]==x){
-        
-        # increment counter by 1 
-        count= count + 1
-    }
-}
-
-```
-
-# Creating Lexicons for 
