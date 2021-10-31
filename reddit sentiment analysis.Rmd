@@ -64,7 +64,7 @@ library(dplyr)
 dcfull <- read.csv("Dave Chapelle Comments.csv")
 dcfull$comment[1:5]
 dc_sents <- vader_df(dcfull$comment)
-
+View(dc_sents)
 write.csv(dc_sents,"DC vader sents.csv", row.names = F)
 dc_sents <- read.csv('DC vader sents.csv')
 
@@ -79,7 +79,10 @@ plot(dsent$pos, dsent$neg)
 
 
 ```{r}
-dsent1 <- pivot_longer(dsent, c(1:4), names_to = "type", values_to = "valence", values_drop_na = TRUE)
+dsent1 <- pivot_longer(dsent, c(1:4), 
+                       names_to = "type", 
+                       values_to = "valence", 
+                       values_drop_na = TRUE)
 
 dmeans <- dsent1 %>% 
   group_by(type) %>% 
@@ -94,6 +97,25 @@ dtype
 
 ```
 
+### upvote analysis
+
+```{r}
+library(dplyr)
+
+dc_sents <- rename(dc_sents,comment = text)
+
+head(dc_sents)
+dc_uv <- merge(dcfull,dc_sentsM)
+head(dc_uv)
+write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
+
+library(ggplot2)
+
+View(dc_uv)
+
+cor(dc_uv)
+
+```
 
 
 ## Joe Manchin analysis
@@ -104,7 +126,7 @@ dtype
 jmfull <- read.csv("Joe Manchin Comments.csv")
 jmfull$comment[1:5]
 jm_sents <- vader_df(jmfull$comment)
-
+View(jm_sents)
 write.csv(jm_sents,"JM vader sents.csv", row.names = F)
 jm_sents <- read.csv('JM vader sents.csv')
 

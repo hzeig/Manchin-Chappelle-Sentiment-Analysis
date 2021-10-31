@@ -1,0 +1,206 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+## Sentiment Analyses
+
+### Libraries:
+
+```{r echo=FALSE}
+library(syuzhet)
+library(sentimentr)
+library(lubridate)
+library(ggplot2)
+library(scales)
+library(reshape2)
+library(dplyr)
+```
+
+## Dave Chapelle analysis
+
+```{r}
+# Read file
+dc_stop <- readLines("DC cleaned stop.txt")
+dc_nostop <- readLines("DC cleaned nostop.txt") # 3000+ less elements, why
+```
+
+
+```{r}
+
+# NRC Sentiment scores
+s <- get_nrc_sentiment(dc_stop)
+n <- get_nrc_sentiment(dc_nostop)
+df <- rbind(s,n)
+
+
+
+get_nrc_sentiment("worst") 
+# colorful words that have no sentiment value: 
+# 'worst', 'fucked', 'transphobic', 'homophobic'
+
+
+```
+
+
+
+```{r}
+# sentimentr
+dwz <- average_downweighted_zero(dc_stop)
+wms <- average_weighted_mixed_sentiment(s)
+wms
+dwz
+
+```
+
+
+# Trying Valence Aware Dictionary and sEntiment Reasoner (VADER)
+
+```{r}
+library(vader)
+library(tidyverse)
+library(dplyr)
+
+dcfull <- read.csv("Dave Chapelle Comments.csv")
+dcfull$comment[1:5]
+dc_sents <- vader_df(dcfull$comment)
+View(dc_sents)
+write.csv(dc_sents,"DC vader sents.csv", row.names = F)
+dc_sents <- read.csv('DC vader sents.csv')
+
+str(dc_sents)
+
+dsent <- dc_sents[,c(3:6)]
+
+plot(dsent$pos, dsent$neg)
+# drops <- c("word_scores","but_count")
+# dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
+```
+
+
+```{r}
+dsent1 <- pivot_longer(dsent, c(1:4), 
+                       names_to = "type", 
+                       values_to = "valence", 
+                       values_drop_na = TRUE)
+
+dmeans <- dsent1 %>% 
+  group_by(type) %>% 
+  summarise(avg_valence = mean(valence))
+
+dtype <- dsent1 %>% group_by(type)
+
+barplot(dmeans$avg_valence)
+boxplot(dtype$valence ~ dtype$type)
+
+dtype
+
+```
+
+### upvote analysis
+
+```{r}
+library(dplyr)
+
+dc_sents <- rename(dc_sents,comment = text)
+
+head(dc_sents)
+dc_uv <- merge(dcfull,dc_sentsM)
+head(dc_uv)
+write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
+
+library(ggplot2)
+
+View(dc_uv)
+
+cor(dc_uv)
+
+```
+
+
+## Joe Manchin analysis
+
+```{r}
+
+
+jmfull <- read.csv("Joe Manchin Comments.csv")
+jmfull$comment[1:5]
+jm_sents <- vader_df(jmfull$comment)
+View(jm_sents)
+write.csv(jm_sents,"JM vader sents.csv", row.names = F)
+jm_sents <- read.csv('JM vader sents.csv')
+
+str(jm_sents)
+
+jsent <- jm_sents[,c(3:6)]
+
+
+# drops <- c("word_scores","but_count")
+# dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
+
+
+
+jsent1 <- pivot_longer(jsent, c(1:4), names_to = "type", values_to = "valence", values_drop_na = TRUE)
+
+jmeans <- jsent1 %>% 
+  group_by(type) %>% 
+  summarise(avg_valence = mean(valence))
+
+?barplot
+
+barplot(jmeans$avg_valence)
+jsent_type <- jsent1 %>% group_by(type)
+
+boxplot(jsent_type, xlab='measure', ylab='valence', ann=T)
+
+
+```
+
+
+
+# Finding the right domain lexicon for each post
+
+```{r}
+bestfitLexicon <- function(url, subredditLexicon){
+  
+}
+```
+
+```{r}
+
+library(dplyr)
+
+subreddit_lex <- read.table(file = 'subreddits/3DS.tsv', sep = '\t', header = F)
+
+class(subreddit_lex$V1)
+class(dcfull$comment)
+is.element(sample$comment[1], subreddit_lex$V1)
+
+class(subreddit_lex$V1)
+
+sample <- dcfull %>% filter(url == "https://www.reddit.com/r/SocialJusticeInAction/comments/qczafo/demands_from_the_netflix_trans_team_after_the/") 
+
+sample
+
+length(grep(subreddit_lex$V1[5],sample$comment))
+grep(subreddit_lex$V1[5],sample$comment)
+
+
+vec <- sample$comment
+count = 0
+x = subreddit_lex$V1
+  
+# looping over vector values
+for( i in vec){
+    
+    # check if the value is equal to x
+    if(vec[i]==x){
+        
+        # increment counter by 1 
+        count= count + 1
+    }
+}
+
+```
+
+# Creating Lexicons for 

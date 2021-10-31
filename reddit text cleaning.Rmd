@@ -27,24 +27,9 @@ corpus <- tm_map(corpus, tolower)
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, stripWhitespace)
-cleanedtext <- tm_map(corpus, removeWords, c('dave', 'chapelle', 'netflix', 'trans', 'walkout', 'chappelle','just','like'))
-
-remove_newline <- function(x) gsub('\n','',x)
-corpus <- tm_map(corpus,content_transformer(remove_newline))
-
-inspect(corpus[1:5])
+corpus <- tm_map(corpus, removeWords, c('dave', 'chapelle', 'netflix', 'trans', 'walkout', 'really', 'well','get', 'hes', 'chappelle','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get'))
 
 writeLines(as.character(corpus),"DC cleaned stop.txt")
-
-class(cleanedtext)
-
-library(textreg)
-
-convert.tm.to.character(corpus)
-
-?convert.tm.to.character
-class(corpus)
-
 
 ```
 
@@ -53,23 +38,10 @@ class(corpus)
 
 ```{r}
 ns_corpus <- tm_map(corpus, removeWords, stopwords('english'))
-ns_corpus
-
 writeLines(as.character(ns_corpus),"DC cleaned nostop.txt")
-
-dtm <- DocumentTermMatrix(ns_corpus)
-dtm
-class(dtm)
-sapply(dtm, class)
-findFreqTerms(dtm,20)
-findAssocs(dtm, "wrong", 0.2)
-
-dtm <- as.matrix(dtm)
-dtm[1:10, 1:20]
 
 tdm <- TermDocumentMatrix(ns_corpus)
 tdm<- as.matrix(tdm)
-tdm[1:100, 1:20]
 
 # Bar Plot
 w <- rowSums(tdm)
@@ -85,14 +57,64 @@ wordcloud(words = names(w),
           random.order = F,
           min.freq = 150,
           colors = brewer.pal(8, 'Dark2'),
-          scale = c(5,.3))
+          scale = c(3,.1))
 
 
 ```
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+## Rinse and repeat for Joe Manchin Controversy
+
+### Build corpus 
 
 ```{r}
+jmfull <- read.csv('Joe Manchin Comments.csv')
+# setwd('C:/Users/hzeig/Documents/Data Science/NYCDSA/projects/Reddit')
+jcorpus <- iconv(jmfull$comment, to = "utf-8")
+jcorpus <- Corpus(VectorSource(jcorpus))
+inspect(jcorpus[1:5])
+```
+### Clean Text
 
+```{r}
+jcorpus <- tm_map(jcorpus, tolower)
+jcorpus <- tm_map(jcorpus, removePunctuation)
+jcorpus <- tm_map(jcorpus, removeNumbers)
+jcorpus <- tm_map(jcorpus, stripWhitespace)
+jcorpus <- tm_map(jcorpus, removeWords, c('joe', 'manchin','just','like','people','will','can','dont','also','isnt','really','still','doesnt','see','well','actually','just','like','people','thats','still','think','dont', 'can', 'one', "don't", "makes", "yeah", "cant", "doesnt","'re","didnt", "youre","isnt", "something", "someone", 'thing', 'also','got','anything','back','get'))
+
+writeLines(as.character(corpus),"JM cleaned stop.txt")
+```
+
+
+### Document Term Matrix & Term Document Matrix
+
+```{r}
+ns_jcorpus <- tm_map(jcorpus, removeWords, stopwords('english'))
+ns_jcorpus
+
+writeLines(as.character(ns_jcorpus),"JM cleaned nostop.txt")
+
+tdm <- TermDocumentMatrix(ns_jcorpus)
+tdm<- as.matrix(tdm)
+
+# Bar Plot
+w <- rowSums(tdm)
+w <- subset(w, w>=50)
+barplot(w, las = 2, col = rainbow(50))
+
+library(wordcloud)
+w <- sort(rowSums(tdm),decreasing = TRUE)
+set.seed(222)
+wordcloud(words = names(w),
+          freq = w,
+          max.words =150,
+          random.order = F,
+          min.freq = 150,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(3,.1))
 
 
 ```
