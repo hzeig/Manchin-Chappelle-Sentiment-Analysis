@@ -23,6 +23,6 @@ Google Slides for this presentation is available at:
 https://docs.google.com/presentation/d/18BybPJ9Krvow2nHq1CHLWxeZSn4987Egwz91DlMRpWw/edit?usp=sharing
 
 ### This repository includes: 
-- code for the text web scraping
-- code for NLP sentiment analysis
+- code for text mining and clean up
+- code for sentiment analyses
 - code for RShiny app built using this data, which will be available for viewing here:
