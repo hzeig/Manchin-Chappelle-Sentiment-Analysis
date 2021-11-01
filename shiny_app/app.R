@@ -146,45 +146,55 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                     br(),
                                     h3(strong(b("A Sentiment Analysis of Reddit-user Response to Current Controversies"))),
                                     br(),
-                                    p("On September 29, 2021,", 
-                                      a("Netflix began streaming Dave Chapelle's hour-long stand-up comedy show special 'The Closure' (2021).", 
-                                        href = "https://www.npr.org/2021/10/05/1043435919/dave-chappelle-new-netflix-special-the-closer-review"), 
-                                      "", 
-                                      a("69 Love Songs.", href = "https://www.mergerecords.com/69-love-songs"), 
-                                      "Conceived and written by frontman, Stephin Merritt, it is a three-volume concept album containing (yep, you guessed it) 69 love songs."), 
-                                    p("Merritt has described the album as \"...not remotely an album about love. It's an album about love songs...\""),
-                                    p("So, what does Stephin sing about when he sings about love (songs)?"),
-                                    p("Play with this interactive tool and find out!"),
+                                    h5(em("Public Disagreements")),
+                                      p("- On October 5th, 2021, Netflix premiered"),
+                                        a("Dave Chapelle", href="https://en.wikipedia.org/wiki/Dave_Chappelle"),
+                                        "'s hour-long stand-up comedy show special",
+                                        a("'The Closer' (2021)", href="https://en.wikipedia.org/wiki/The_Closer_(2021_film)"),
+                                        "on it's streaming platform. Within a few days of it's release, viewers of all backgrounds became vocally critical of offensive remarks Chappelle made in the show. In an escalating battle for Netflix to discontinue streaming Chappelle's special, Netflix employee's have been protesting with political action in various forms. These include staging a walkout, leaking profitability data to Bloomberg News, and filing a federal labor charge", 
+                                      p("- Over the past month, senators in Congress have been voting and negotiating on an infrastructure bill that's part of POTUS Joe Biden's",
+                                        a("'Build Back Better' agenda.", href="https://en.wikipedia.org/wiki/Build_Back_Better_Plan"),
+                                        "One of the key actors in these negotiations has been",
+                                        a("Joe Manchin,",href="https://en.wikipedia.org/wiki/Joe_Manchin"), 
+                                        "who effectively blocked ambitious climate- and social-action policy from being passed into the House of Representatives. Manchin's private shares in coal brokerage Enersystems and recipiency of large donations from coal, oil, and gas corporations has called into question his motives as a public servant in Congress, making him a highly controversial figure.",
+                                    h5("So, what is this page about?"),
+                                    p("The aim of this tool is to express how citizens feel about these issues. To some extent online discussion forums such as Reddit have replaced other forms of political expression and physical locations for community discussions (such as town halls or school gyms)."),
+                                    p("My hope is that by using sentiment analysis tools", 
+                                      a("---such as custom word-embeddings created by unsupervised machine learning models to create domain-specific sentiment lexicons for these online, user-selected discussion boards---"),
+                                      "that we can more accurately understand popular opinion regarding controversial issues such as the ones explored here, and thereby bring clarity to policy makers and public servants.",
+                                    h4(em("There's a tremendous gap between public opinion and public policy"), "- Noam Chomsky"),
                                     br(),
                                     br(),
-                                    div(img(src = "magfieldsstrip.png", height = 187, width = 800), style="text-align: center;"),
+                                    div(a(img(src = "wall-e.jpg", height = 461.85, width = 800), style="text-align: center;"), href="https://unsplash.com/photos/Sot0f3hQQ4Y?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink"),
                                     br(),
                                     br(),
                                     br(),
-                                    div(p(strong("Built by"), a("committedtotape", href = "https://twitter.com/committedtotape"), "using the power of Rstudio and Shiny."), 
-                                        p(strong("R Packages:"), "tidyverse, tidytext, wordcloud2, tidygraph, vizNetwork, glue."),
-                                        p(strong("Sources:"), a("genius.com", href = "https://genius.com/albums/The-magnetic-fields/69-love-songs"), "for lyrics,", a("wikipedia", href = "https://en.wikipedia.org/wiki/69_Love_Songs"), "for singers."),
+                                    div(p(strong("Built by"), a("Hadar Zeigerson", href = "https://nycdatascience.com/blog/author/hzeigersongmail-com/"), "using the power of Rstudio and Shiny."), 
+                                        p(strong("R Packages:"), "RedditExtractoR, sentimentr, tidyverse, dplyr, ggplot2, wordcloud2."),
+                                        p(strong("Sources:"), a("reddit.com", href = "https://www.reddit.com/"), "for data on the", a("Dave Chappelle & Netflix", href = "https://www.reddit.com/search/?q=dave%20chappelle%20netflix%20trans"), "and", a("Joe Manchin", href = "https://www.reddit.com/search/?q=joe%20manchin%20climate%20bill"), "controversies."),
                                         style="text-align: right;")
                           )
                  ),
                  
-                 # Second Page  - Love Counts       
-                 tabPanel("How F%>%king Romantic?",
-                          fluidPage(sidebarLayout(position = "right",
-                                                  sidebarPanel(style = "background: black",
+                 # Second Page  - Overall Comparison      
+                 tabPanel("Overview",
+                          fluidPage(sidebarLayout(position = "left",
+                                                  sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
-                                                                         selectInput("disc",
-                                                                                     "Select your Volume:",
+                                                                         selectInput("text",
+                                                                                     "Text:",
                                                                                      choices = 1:3,
                                                                                      selected = 1)),
                                                                wellPanel(style = "background: white",
-                                                                         h3("Info:"),
-                                                                         textOutput("lovecount_desc"),
-                                                                         br(),
-                                                                         p("The 'loveliest' songs are annotated.")),
-                                                               wellPanel(style = "background: white",
-                                                                         h3("Notes:"),
-                                                                         p(paste0("Words considered: ", love_words_collapse, "."))             
+                                                                         selectInput("plot",
+                                                                                     "Plot type:",
+                                                                                     choices = 1:3,
+                                                                                     selected = 1)             
+                                                               # wellPanel(style = "background: white",
+                                                               #           h3("Info:"),
+                                                               #           textOutput("lovecount_desc"),
+                                                               #           br(),
+                                                               #           p("The 'loveliest' songs are annotated.")),
                                                                )
                                                   ),
                                                   
@@ -199,25 +209,6 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                           )
                  ),
                  
-                 # Third Page - Clouds        
-                 tabPanel("The Book of Love",
-                          fluidPage(sidebarLayout(position = "right",
-                                                  sidebarPanel(style = "background: black",
-                                                               wellPanel(style = "background: white",
-                                                                         checkboxGroupInput("disc_cloud",
-                                                                                            "Select your Volume(s):",
-                                                                                            choices = 1:3,
-                                                                                            selected = 1:3)),
-                                                               DT::dataTableOutput("counttable")),
-                                                  
-                                                  mainPanel( 
-                                                    p(strong(em("\"...It's full of flowers and heart-shaped boxes, and things we're all too young to know.\""), "1.12 - The Book of Love")),
-                                                    p("Unsurprisingly there's a lot of love, but what else? Hover over the word cloud below, or search for words in the table to the right:"),
-                                                    wordcloud2Output("wordcloud", width = "100%", height = "565px")
-                                                  )
-                          )
-                          )
-                 ),
                  
                  # Network diagram - love bigrams
                  tabPanel("Love, or Nothing At All",
@@ -279,25 +270,34 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                           )
                  ),
                  
-                 # Blue blue blue
-                 tabPanel("Making Me Blue",
-                          fluidPage(p(strong(em("\"You know you enthrall me, and yet you don't call me. It's making me blue...\""), "1.5 - Reno Dakota")),
-                                    br(),
-                                    plotOutput("blues", width = "100%", height = "380px"),
-                                    br(),
-                                    fluidRow(column(9,
-                                                    p("The protagonist in 'Reno Dakota' not only sings of being blue, but can describe the feeling with an exact hue.",
-                                                      p("However, perhaps Pantone 292 doesn't convey", em("your"), "blue-ness accurately.
-                                   Why not try another shade on for size?"), 
-                                   p("Choose from a selected palette of popular blues on the right."))),
-                                   column(3, selectInput("shade",
-                                                         label = NULL,
-                                                         choices = blueshades$colourname,
-                                                         selected = "Pantone 292"))
-                                    )
+                 # Third Page - Clouds        
+                 tabPanel("Wordclouds",
+                          fluidPage(sidebarLayout(position = "left",
+                                                  sidebarPanel(style = "background: #FF5700",
+                                                               wellPanel(style = "background: white",
+                                                                         checkboxGroupInput("disc_cloud",
+                                                                                            "Choose Controversial Topic:",
+                                                                                            choices = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"),
+                                                                                            selected = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"))),
+                                                                         selectInput("disc_cloud",
+                                                                           "Choose subreddit(s)",
+                                                                           choices = ,
+                                                                           selected = NULL,
+                                                                           multiple = FALSE,
+                                                                           selectize = TRUE,
+                                                                           width = NULL,
+                                                                           size = NULL
+                                                                         ),
+                                                                              ),
+                                                            
+                                                  mainPanel( 
+                                                    p("Hover over the word cloud below, or search for the count of word appearances in the table (bottom left):"),
+                                                    wordcloud2Output("wordcloud", width = "100%", height = "565px")
+                                                  )
                           )
-                 )
-)
+                          )
+                 ),
+),
 
 
 # SHINY SERVER
@@ -355,9 +355,9 @@ server <- function(input, output) {
   
   
   # Description of love per volume
-  output$lovecount_desc <- renderText({ 
-    paste("Volume", input$disc, "has an average love count of", averages_subset(), "per song. Indicated by the dotted line.")
-  })
+  # output$lovecount_desc <- renderText({ 
+  #   paste("Volume", input$disc, "has an average love count of", averages_subset(), "per song. Indicated by the dotted line.")
+  # })
   
   # word counts (excluding stop words) for word clouds
   word_counts <- reactive({ 
@@ -373,15 +373,9 @@ server <- function(input, output) {
   # Word Clouds
   output$wordcloud <- renderWordcloud2({
     wordcloud2(word_counts(), size = 1.6, fontFamily = "Courier",
-               color=rep_len(pal[2:4], nrow(word_counts())), backgroundColor = "black")
+               color=rep_len(pal[1:3], nrow(word_counts())), backgroundColor = "white")
   })
   
-  # Word search table
-  output$counttable = DT::renderDataTable({
-    DT::datatable(word_counts(), options = list(lengthMenu = c(10, 20, 50), pageLength = 10),
-                  rownames = FALSE, colnames = c("Word", "Count"), class = 'compact',
-                  caption = 'Common words (e.g. the, is, at) are excluded')
-  })
   
   # Love Network
   
