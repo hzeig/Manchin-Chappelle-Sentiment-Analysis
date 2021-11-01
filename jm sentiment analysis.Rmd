@@ -22,79 +22,108 @@ library(stringr)
 
 ```
 
-## Dave Chapelle
-
+### Load and merge dataframes
 ```{r}
 # import DFs
-dc_comm <- read.csv("Dave Chapelle Comments.csv")
-dc_thre <- read.csv("Dave Chapelle Threads.csv")
+jm_comm <- read.csv("Joe Manchin Comments.csv")
+jm_thre <- read.csv("Joe Manchin Threads.csv")
 
 
 # merge into one DF
-dc_thre <- dc_thre %>% dplyr::select(subreddit, url, thread.author=author, 
+jm_thre <- jm_thre %>% dplyr::select(subreddit, url, thread.author=author, 
                                      thread.date=date, thread.title=title, 
                                      thread.text=text, 
                                      thread.score=score, 
                                      thread.number.comments=comments)
 
-dc_comm <- dc_comm %>% dplyr::select(url, comment.author=author, 
+jm_comm <- jm_comm %>% dplyr::select(url, comment.author=author, 
                                      comment.date=date, comment, 
                                      comment.score=score, comment_id)
 
 
-dc_full <- merge(dc_thre, dc_comm)
+jm_full <- merge(jm_thre, jm_comm)
 
 ```
 
 
-# sentimentr 
+### sentimentr 
 
-```{r}
+```{r results=c(1,6)}
 # 1. threads
 
 # 1.1 by thread text
-dc_sr_thre <- get_sentences(dc_thre$thread.text)
-dc_sr_thre <- sentiment_by(dc_sr_thre, dc_thre$thread.text)
-plot(dc_sr_thre$word_count, dc_sr_thre$ave_sentiment)
+jm_sr_thre <- get_sentences(jm_thre$thread.text)
+jm_sr_thre <- sentiment_by(jm_sr_thre, jm_thre$thread.text)
 
 # summary
-summary(dc_sr_thre)
-plot(density(dc_sr_thre$ave_sentiment))
+summary(jm_sr_thre)
 
 # correlations
-df1 <- merge(dc_sr_thre, dc_thre)
-cor(df1$thread.score, df1$thread.number.comments) # 0.781
-cor(df1$ave_sentiment, df1$word_count) # -0.287
-cor(df1$ave_sentiment, df1$thread.score) # 0.156
-cor(df1$ave_sentiment, df1$thread.number.comments) # 0.057
-## nothing fruitful
+df1 <- merge(jm_sr_thre, jm_thre)
+cor(df1$thread.score, df1$thread.number.comments) # 0.853
+cor(df1$ave_sentiment, df1$word_count) ## 0.345* <--- marginally high r^2
+cor(df1$ave_sentiment, df1$thread.score) # -0.035
+cor(df1$ave_sentiment, df1$thread.number.comments) # -0.042
+
 
 # 1.2 by thread title
-dc_sr_titl <- get_sentences(dc_thre$thread.title)
-dc_sr_titl <- sentiment_by(dc_sr_titl, dc_thre$thread.title)
+jm_sr_titl <- get_sentences(jm_thre$thread.title)
+jm_sr_titl <- sentiment_by(jm_sr_titl, jm_thre$thread.title)
 
-# summary and plot
-summary(dc_sr_titl)
-plot(density(dc_sr_thre$ave_sentiment), 
-     xlim=c(-1.5,1),
-     ylim=c(0,4))
-lines(density(dc_sr_titl$ave_sentiment))
+# summary
+summary(jm_sr_titl)
 
 # correlations 
-df12 <- merge(dc_sr_titl, dc_thre)
-cor(df12$ave_sentiment, df12$word_count)  ## -0.346**
-cor(df12$ave_sentiment, df12$thread.score)  # 0.067
-cor(df12$ave_sentiment, df12$thread.number.comments) # 0.05
+df12 <- merge(jm_sr_titl, jm_thre)
+cor(df12$ave_sentiment, df12$word_count)  ## 0.424* <--- marginally high r^2 
+cor(df12$ave_sentiment, df12$thread.score)  # 0.051
+cor(df12$ave_sentiment, df12$thread.number.comments) # 0.02
+
+# 1.3 comments
+
+# by comment
+jm_sr_comm <- get_sentences(jm_full$comment)
+jm_sr_comm <- sentiment_by(jm_sr_comm, jm_full$comment)
 
 
+df13 <-merge(jm_sr_comm, jm_full)
+cor(df13$ave_sentiment, df13$word_count) # 0.03
+cor(df13$ave_sentiment, df13$comment.score) # -0.003
+cor(df13$ave_sentiment, df13$thread.number.comments) # 0.015
+cor(df13$ave_sentiment, df13$thread.score) # 0.009
 
-## 1.3 by subreddit
 
-# text by subreddit
-dc_sr_thre_sub <- get_sentences(dc_thre$thread.text)
-dc_sr_thre_sub <- sentiment_by(dc_sr_thre_sub, dc_thre$subreddit)
+# summary
+summary(jm_sr_comm)
 
-df13 <- merge(dc_sr_thre_sub, dc_thre)
+# plots
+plot(density(jm_sr_titl$ave_sentiment), 
+     xlim=c(-1.5,1.5),
+     ylim=c(0,7),
+     main = "Average Sentiment by Text", 
+     xlab = "Average sentimentr Score")
+lines(density(jm_sr_thre$ave_sentiment),
+      col = 2)
+lines(density(jm_sr_comm$ave_sentiment),
+      col = 3)
+legend("topleft", 
+       c('title text','post text','comments'),
+       col = 1:3,
+       lty = 1,
+       title = "Text Colors")
+
+```
+
+
+```{r}
+## 2. arranging by groups
+
+# 2.1 by subreddit
+# text
+jm_sr_thre_sub <- get_sentences(jm_thre$thread.text)
+jm_sr_thre_sub <- sentiment_by(jm_sr_thre_sub, jm_thre$subreddit)
+
+df13 <- merge(jm_sr_thre_sub, jm_thre)
 
 df13 %>%
   group_by(subreddit) %>%
@@ -103,120 +132,99 @@ df13 %>%
   geom_bar(stat='identity')
 
 
-# title by subreddit
-dc_sr_titl_sub <- get_sentences(dc_thre$thread.title)
-dc_sr_titl_sub <- sentiment_by(dc_sr_titl_sub, dc_thre$subreddit)
+# title
+jm_sr_titl_sub <- get_sentences(jm_thre$thread.title)
+jm_sr_titl_sub <- sentiment_by(jm_sr_titl_sub, jm_thre$subreddit)
 
-df14 <- merge(dc_sr_titl, dc_thre)
-
-```
+df14 <- merge(jm_sr_titl, jm_thre)
 
 
-```{r}
-# comments
 
-# by comment
-dc_sr_comm <- get_sentences(dc_full$comment)
-dc_sr_comm <- sentiment_by(dc_sr_comm, dc_full$comment)
-
-
-df2 <-merge(dc_sr_comm, dc_full)
-cor(df2$ave_sentiment, df2$word_count) # -0.018
-cor(df2$ave_sentiment, df2$comment.score) # -0.006
-cor(df2$ave_sentiment, df2$thread.number.comments) # 0.023
-cor(df2$ave_sentiment, df2$thread.score) # 0.027
-
-
-# summary and plot
-summary(dc_sr_comm)
-plot(density(dc_sr_titl$ave_sentiment), 
-     xlim=c(-1.5,1),
-     ylim=c(0,4),
-     main = "Average Sentiment by Text")
-lines(density(dc_sr_thre$ave_sentiment),
-      col = 2)
-lines(density(dc_sr_comm$ave_sentiment),
-      col = 3)
-legend("topleft", 
-       c('title text','post text','comments'),
-       col = 1:3,
-       lty = 1,
-       title = "Text Colors")
-
-
-```
-
-
-# Valence Aware Dictionary and sEntiment Reasoner (VADER)
-
-```{r}
-# dc_vcsents <- vader_df(dc_comm$comment)
-# dc_vtsents <- vader_df(dc_thre$text)
-# write.csv(dc_vcsents,"DC vader comment sents.csv", row.names = F)
-# write.csv(dc_vtsents, "DC vader thread sents.csv", row.names = F)
-
-dc_vcsents <- read.csv('DC vader comment sents.csv')
-dc_vtsents <- read.csv('DC vader thread sents.csv')
-
-dc_sents <- rename(dc_sents,comment = text)
-
-head(dc_sents)
-dc_uv <- merge(dcfull,dc_sentsM)
-head(dc_uv)
-write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
-
-View(dc_uv)
-
-cor(dc_uv)
+# 2.2 by author
 
 
 ```
 
 
 ```{r}
-dsent <- dc_sents[,c(3:6)]
+# 3. Trends over time
 
-plot(dsent$pos, dsent$neg)
-# drops <- c("word_scores","but_count")
-# dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
-```
-```{r}
-# measuring for average length of comment
 
-play <- dc_sents$text
-
-play3 <- sapply(play, str_count)
-head(play3)
-
-play2 <- strsplit(play, " ")
-
-wl <- sapply(play2, length)
-
-mean(wl)
-summary(wl)
-
-plot(density(wl))
-
-library(MASS)
 ```
 
 
+
+### Valence Aware Dictionary and sEntiment Reasoner (VADER)
+
 ```{r}
-dsent1 <- pivot_longer(dsent, c(1:4), 
-                       names_to = "type", 
-                       values_to = "valence", 
-                       values_drop_na = TRUE)
+# jm_vd_thre <- vader_df(jm_thre$text)
+# jm_vd_comm <- vader_df(jm_comm$comment)
+# write.csv(jm_vd_thre, "jm vader thread sents.csv", row.names = F)
+# write.csv(jm_vd_comm,"jm vader comment sents.csv", row.names = F)
 
-dmeans <- dsent1 %>% 
-  group_by(type) %>% 
-  summarise(avg_valence = mean(valence))
+jm_vd_thre <- read.csv('jm vader thread sents.csv')
+jm_vd_comm <- read.csv('jm vader comment sents.csv')
 
-dtype <- dsent1 %>% group_by(type)
 
-barplot(dmeans$avg_valence)
-boxplot(dtype$valence ~ dtype$type)
+# jm_sents <- rename(jm_vc_comm,comment = text)
+# 
+# head(jm_sents)
+# jm_uv <- merge(jmfull,jm_sentsM)
+# head(jm_uv)
+# write.csv(jm_uv, "Vader Comment Data Merge.csv", row.names = F)
+# 
+# View(jm_uv)
+# 
+# cor(jm_uv)
+# 
 
-dtype
+```
+
+
+```{r}
+# dsent <- jm_sents[,c(3:6)]
+# 
+# plot(dsent$pos, dsent$neg)
+# # drops <- c("word_scores","but_count")
+# # jm_sents1 <- jm_sents[ , !(names(jm_sents) %in% drops)]
+# ```
+# ```{r}
+# # measuring for average length of comment
+# 
+# play <- jm_sents$text
+# 
+# play3 <- sapply(play, str_count)
+# head(play3)
+# 
+# play2 <- strsplit(play, " ")
+# 
+# wl <- sapply(play2, length)
+# 
+# mean(wl)
+# summary(wl)
+# 
+# plot(density(wl))
+# 
+# library(MASS)
+# ```
+# 
+# 
+# ```{r}
+# dsent1 <- pivot_longer(dsent, c(1:4), 
+#                        names_to = "type", 
+#                        values_to = "valence", 
+#                        values_drop_na = TRUE)
+# 
+# dmeans <- dsent1 %>% 
+#   group_by(type) %>% 
+#   summarise(avg_valence = mean(valence))
+# 
+# dtype <- dsent1 %>% group_by(type)
+# 
+# barplot(dmeans$avg_valence)
+# boxplot(dtype$valence ~ dtype$type)
+# 
+# dtype
 
 ```
 
@@ -227,7 +235,6 @@ dtype
 
 
 ```
-
 
 ## Joe Manchin analysis
 
@@ -247,7 +254,7 @@ jsent <- jm_sents[,c(3:6)]
 
 
 # drops <- c("word_scores","but_count")
-# dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
+# jm_sents1 <- jm_sents[ , !(names(jm_sents) %in% drops)]
 
 
 
