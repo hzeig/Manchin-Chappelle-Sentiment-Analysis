@@ -19,8 +19,8 @@ of each of these controversies, and who are also an influence
 - Dave Chapelle and Joe Manchin, who would benefit to know both 
 their impact on the public and public opinion of them, respectively
 
-Google Slides for this presentation will be available at:
-
+Google Slides for this presentation is available at:
+https://docs.google.com/presentation/d/18BybPJ9Krvow2nHq1CHLWxeZSn4987Egwz91DlMRpWw/edit?usp=sharing
 
 ### This repository includes: 
 - code for the text web scraping
