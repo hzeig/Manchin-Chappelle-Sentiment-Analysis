@@ -7,7 +7,7 @@ October 27th, 2021
 - Dave Chapelle's anti-trans/trans-critical comments in his stand-up comedy special hosted on Netflix
 
 The purpose of this study is to investigate population sentiments regarding these controversies 
-using sentiment analysis of title and text data from related searches in
+using sentiment analysis of title, thread, and comment data from related searches in
 popular discussion website of 430 million users, Reddit.
 
 ### The stakeholders and beneficiaries of this study include:
