@@ -1,4 +1,4 @@
-# Chapelle-Manchin-Sentiment-Analysis
+# Joe Manchin vs Dave Chapelle Sentiment Analysis
 
 October 27th, 2021
 
