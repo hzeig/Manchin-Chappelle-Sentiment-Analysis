@@ -1,0 +1,236 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Dave Chapelle Controversy Sentiment Analyses (EDA)
+
+### Libraries:
+
+```{r results=FALSE, message=FALSE, warning=FALSE}
+library(sentimentr)
+library(vader)
+library(lubridate)
+library(ggplot2)
+library(scales)
+library(reshape2)
+library(dplyr)
+library(tidyverse)
+library(stringr)
+
+# rm(list=ls())
+
+```
+
+### Load and merge dataframes
+```{r}
+# import DFs
+dc_comm <- read.csv("Dave Chapelle Comments.csv")
+dc_thre <- read.csv("Dave Chapelle Threads.csv")
+
+
+# merge into one DF
+dc_thre <- dc_thre %>% dplyr::select(subreddit, url, thread.author=author, 
+                                     thread.date=date, thread.title=title, 
+                                     thread.text=text, 
+                                     thread.score=score, 
+                                     thread.number.comments=comments)
+
+dc_comm <- dc_comm %>% dplyr::select(url, comment.author=author, 
+                                     comment.date=date, comment, 
+                                     comment.score=score, comment_id)
+
+
+dc_full <- merge(dc_thre, dc_comm)
+
+```
+
+
+### sentimentr 
+
+```{r results=c(1,6)}
+# 1. threads
+
+# 1.1 by thread text
+dc_sr_thre <- get_sentences(dc_thre$thread.text)
+dc_sr_thre <- sentiment_by(dc_sr_thre, dc_thre$thread.text)
+
+# summary
+summary(dc_sr_thre)
+
+# correlations
+df1 <- merge(dc_sr_thre, dc_thre)
+cor(df1$thread.score, df1$thread.number.comments) # 0.781
+cor(df1$ave_sentiment, df1$word_count) # -0.287
+cor(df1$ave_sentiment, df1$thread.score) # 0.156
+cor(df1$ave_sentiment, df1$thread.number.comments) # 0.057
+## nothing fruitful
+
+# 1.2 by thread title
+dc_sr_titl <- get_sentences(dc_thre$thread.title)
+dc_sr_titl <- sentiment_by(dc_sr_titl, dc_thre$thread.title)
+
+# summary
+summary(dc_sr_titl)
+
+# correlations 
+df12 <- merge(dc_sr_titl, dc_thre)
+cor(df12$ave_sentiment, df12$word_count)  ## -0.346**
+cor(df12$ave_sentiment, df12$thread.score)  # 0.067
+cor(df12$ave_sentiment, df12$thread.number.comments) # 0.05
+
+# 1.3 comments
+
+# by comment
+dc_sr_comm <- get_sentences(dc_full$comment)
+dc_sr_comm <- sentiment_by(dc_sr_comm, dc_full$comment)
+
+
+df13 <-merge(dc_sr_comm, dc_full)
+cor(df13$ave_sentiment, df13$word_count) # -0.018
+cor(df13$ave_sentiment, df13$comment.score) # -0.006
+cor(df13$ave_sentiment, df13$thread.number.comments) # 0.023
+cor(df13$ave_sentiment, df13$thread.score) # 0.027
+
+
+# summary
+summary(dc_sr_comm)
+
+# plots
+plot(density(dc_sr_titl$ave_sentiment), 
+     xlim=c(-1.5,1),
+     ylim=c(0,4),
+     main = "Average Sentiment by Text")
+lines(density(dc_sr_thre$ave_sentiment),
+      col = 2)
+lines(density(dc_sr_comm$ave_sentiment),
+      col = 3)
+legend("topleft", 
+       c('title text','post text','comments'),
+       col = 1:3,
+       lty = 1,
+       title = "Text Colors")
+
+```
+
+
+```{r}
+## 2. arranging by groups
+
+# 2.1 by subreddit
+# text
+dc_sr_thre_sub <- get_sentences(dc_thre$thread.text)
+dc_sr_thre_sub <- sentiment_by(dc_sr_thre_sub, dc_thre$subreddit)
+
+df13 <- merge(dc_sr_thre_sub, dc_thre)
+
+df13 %>%
+  group_by(subreddit) %>%
+  mutate(subreddit = fct_reorder(subreddit, ave_sentiment)) %>%
+  ggplot(aes(x=subreddit, y=ave_sentiment)) +
+  geom_bar(stat='identity')
+
+
+# title
+dc_sr_titl_sub <- get_sentences(dc_thre$thread.title)
+dc_sr_titl_sub <- sentiment_by(dc_sr_titl_sub, dc_thre$subreddit)
+
+df14 <- merge(dc_sr_titl, dc_thre)
+
+
+
+# 2.2 by author
+
+
+```
+
+
+```{r}
+# 3. Trends over time
+
+
+```
+
+
+
+### Valence Aware Dictionary and sEntiment Reasoner (VADER)
+
+```{r}
+# dc_vd_thre <- vader_df(dc_thre$text)
+# dc_vd_comm <- vader_df(dc_comm$comment)
+# write.csv(dc_vd_thre, "DC vader thread sents.csv", row.names = F)
+# write.csv(dc_vd_comm,"DC vader comment sents.csv", row.names = F)
+
+dc_vd_thre <- read.csv('DC vader thread sents.csv')
+dc_vd_comm <- read.csv('DC vader comment sents.csv')
+
+
+# dc_sents <- rename(dc_vc_comm,comment = text)
+# 
+# head(dc_sents)
+# dc_uv <- merge(dcfull,dc_sentsM)
+# head(dc_uv)
+# write.csv(dc_uv, "Vader Comment Data Merge.csv", row.names = F)
+# 
+# View(dc_uv)
+# 
+# cor(dc_uv)
+# 
+
+```
+
+
+```{r}
+# dsent <- dc_sents[,c(3:6)]
+# 
+# plot(dsent$pos, dsent$neg)
+# # drops <- c("word_scores","but_count")
+# # dc_sents1 <- dc_sents[ , !(names(dc_sents) %in% drops)]
+# ```
+# ```{r}
+# # measuring for average length of comment
+# 
+# play <- dc_sents$text
+# 
+# play3 <- sapply(play, str_count)
+# head(play3)
+# 
+# play2 <- strsplit(play, " ")
+# 
+# wl <- sapply(play2, length)
+# 
+# mean(wl)
+# summary(wl)
+# 
+# plot(density(wl))
+# 
+# library(MASS)
+# ```
+# 
+# 
+# ```{r}
+# dsent1 <- pivot_longer(dsent, c(1:4), 
+#                        names_to = "type", 
+#                        values_to = "valence", 
+#                        values_drop_na = TRUE)
+# 
+# dmeans <- dsent1 %>% 
+#   group_by(type) %>% 
+#   summarise(avg_valence = mean(valence))
+# 
+# dtype <- dsent1 %>% group_by(type)
+# 
+# barplot(dmeans$avg_valence)
+# boxplot(dtype$valence ~ dtype$type)
+# 
+# dtype
+
+```
+
+### upvote analysis
+
+```{r}
+
+
+
+```
