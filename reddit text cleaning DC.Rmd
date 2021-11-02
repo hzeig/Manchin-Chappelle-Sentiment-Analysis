@@ -1,0 +1,87 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+## Text Cleaning & Wordclouds
+
+### Libraries
+```{r}
+library(quanteda)
+library(dplyr)
+```
+
+
+### Load data
+
+```{r}
+dc_comm <- read.csv("dccomments.csv")
+dc_thre <- read.csv("dcthreads.csv")
+
+```
+
+### separate title, post, comment for tokenization
+
+```{r}
+dc_titl <- dc_thre %>% dplyr::select(url, thread.date = date, title, thread.score = score)
+dc_post <- dc_thre %>% dplyr::select(url, thread.date = date, post=text, thread.score = score)
+dc_comm <- dc_comm %>% dplyr::select(url, comment.date = date, comment, comment.score=score)
+
+```
+
+### tokenize
+
+```{r}
+# 
+titl_toks <- tokens(dc_titl_tok$title, 
+       "word", 
+        remove_numbers = T, 
+        remove_punct = T,
+        remove_symbols = T,
+        remove_separators= T,
+        remove_url = T)
+
+titl_toks_nostop <- tokens_select(titl_toks, pattern = stopwords("en"), selection = "remove")
+dc_titl_toks <- tokens_remove(titl_toks_nostop, pattern = "@")
+dc_titl_toks_stemmd <- tokens_wordstem(dc_titl_toks, language = quanteda_options("language_stemmer"))
+
+# titl_toks_nostop <- gsub("^@","",as.character(title_toks_nostop))
+# strcapture(dc_titl_toks,title, dc_titl_tok)
+# dc_titl_toks <- do.call(rbind, dc_titl_toks)
+
+unlist(dc_titl_toks)
+
+dc_titl_tok$title <- dc_titl_toks
+dc_post_tok$post <-
+dc_comm_tok$comment <-
+
+
+library(sentimentr)
+sentiment(sapply(dc_titl_toks, paste))  
+  
+```
+
+
+### merge into comprehensive tokenized df
+
+```{r}
+
+
+
+
+```
+
+
+### save as rds for shiny
+
+
+
+
+
+
+
+
+
+
+
+

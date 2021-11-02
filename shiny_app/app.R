@@ -15,19 +15,14 @@ pal <- c("#FF5700", "black", "#858B8E", "white")
 
 # data preparation to be done outside of server     # not done
 # read in data
-lovesongs <- read_rds("69LoveSongs.rds")
+both_full <- read_rds("69LoveSongs.rds")
+dc_full <- read_rds()
+jm_full <- read_rds()
 
-# tidy text                                 # ugh would be so cool... not done
-lovesongs_tidy <- lovesongs %>% 
-  # remove intstructions in [ ]
-  filter(!str_detect(lyric, "(\\[.*\\])")) %>% 
-  unnest_tokens(word, lyric)
+
+
 
 # FIRST TAB - Manchin vs Chapelle Overall
-
-# SECOND TAB - Top 10
-
-# THIRD TAB - Wordcloud
 
 # all words beginning with lov - to get occurences of 'love' plus variants
 love_words <- sort(unique(str_subset(lovesongs_tidy$word, "^lov")))
@@ -69,28 +64,33 @@ averages <- love_counts %>%
   mutate(avg_love = round(avg_love, 2))
 
 
+
+
 # THIRD TAB - LOVE BIGRAM NETWORK
+# 
+# # Love bigrams for network
+# lovesongs_bigram <- lovesongs %>% 
+#   # remove intstructions in [ ]
+#   filter(!str_detect(lyric, "(\\[.*\\])")) %>% 
+#   unnest_tokens(bigram, lyric, token = "ngrams", n = 2)
+# 
+# lovesongs_bigram %>% 
+#   count(bigram, sort = TRUE)
+# 
+# bigram_separated <- lovesongs_bigram %>% 
+#   separate(bigram, c("word1", "word2"), sep = " ")
+# 
+# # bigrams including a love element
+# bigram_separated_love <- 
+#   bigram_separated %>% 
+#   filter(word1 %in% love_words | word2 %in% love_words) %>%  
+#   count(word1, word2, sort = TRUE)
 
-# Love bigrams for network
-lovesongs_bigram <- lovesongs %>% 
-  # remove intstructions in [ ]
-  filter(!str_detect(lyric, "(\\[.*\\])")) %>% 
-  unnest_tokens(bigram, lyric, token = "ngrams", n = 2)
-
-lovesongs_bigram %>% 
-  count(bigram, sort = TRUE)
-
-bigram_separated <- lovesongs_bigram %>% 
-  separate(bigram, c("word1", "word2"), sep = " ")
-
-# bigrams including a love element
-bigram_separated_love <- 
-  bigram_separated %>% 
-  filter(word1 %in% love_words | word2 %in% love_words) %>%  
-  count(word1, word2, sort = TRUE)
 
 
-# 4TH TAB - SENTIMENT ANALYSIS
+# SECOND TAB - Top 10
+
+# 4TH TAB - SENTIMENT ANALYSIS*
 
 # sentiment by volume and singer
 
@@ -131,7 +131,9 @@ song_sentiment_tidy <- song_sentiment %>%
          singer = fct_relevel(singer, c("Merritt, Beghtol"), after = Inf))
 
 
-# LAST TAB - Making me blue dataset
+# THIRD TAB - Wordcloud
+
+# LAST TAB - Making me blue dataset*
 blueshades <- tibble(colourname = c("Pantone 292", "Crayola Blue", "Liberty", "Space Cadet", "Teal", "Ultramarine"),
                      colourhex = c("#62A8E5", "#1F75FE", "#545AA7", "#1D2951", "#008080", "#4000FF"))
 
@@ -165,17 +167,17 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                     h4(em("There's a tremendous gap between public opinion and public policy"), "- Noam Chomsky"),
                                     br(),
                                     br(),
-                                    div(a(img(src = "wall-e.jpg", height = 461.85, width = 800), style="text-align: center;"), href="https://unsplash.com/photos/Sot0f3hQQ4Y?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink"),
+                                    div(a(img(src = "manchin-chappelle.jpg", height = 230.4, width = 800), style="text-align: center;"), href="https://unsplash.com/photos/Sot0f3hQQ4Y?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink"),
                                     br(),
                                     br(),
                                     br(),
                                     div(p(strong("Built by"), a("Hadar Zeigerson", href = "https://nycdatascience.com/blog/author/hzeigersongmail-com/"), "using the power of Rstudio and Shiny."), 
-                                        p(strong("R Packages:"), "RedditExtractoR, sentimentr, tidyverse, dplyr, ggplot2, wordcloud2."),
+                                        p(strong("R Packages:"), "RedditExtractoR, sentimentr, vader, tidyverse, dplyr, ggplot2, wordcloud2."),
                                         p(strong("Sources:"), a("reddit.com", href = "https://www.reddit.com/"), "for data on the", a("Dave Chappelle & Netflix", href = "https://www.reddit.com/search/?q=dave%20chappelle%20netflix%20trans"), "and", a("Joe Manchin", href = "https://www.reddit.com/search/?q=joe%20manchin%20climate%20bill"), "controversies."),
                                         style="text-align: right;")
                           )
-                 ),
-                 
+                 )
+        ),                 
                  # Second Page  - Overall Comparison      
                  tabPanel("Overview",
                           fluidPage(sidebarLayout(position = "left",
@@ -199,9 +201,9 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                   ),
                                                   
                                                   mainPanel(
-                                                    p(strong(em("\"How Fucking Romantic, must we really waltz?\""), "1.14 - How Fucking Romantic")),
+                                                    h3(strong("Overview: EDA Comparisons"),
                                                     br(),
-                                                    p("But just ", em("how")," romantic is 69 Love Songs? Let's measure this (crudely) by the number of 'loves' in each song:"),
+                                                    p("Choose text and plot type to see how reddit-user sentiments compare."),
                                                     br(),
                                                     plotOutput("lovecountPlot", width = "100%")
                                                   )
@@ -210,36 +212,7 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                  ),
                  
                  
-                 # Network diagram - love bigrams
-                 tabPanel("Love, or Nothing At All",
-                          fluidPage(sidebarLayout(position = "right",
-                                                  sidebarPanel(style = "background: black",
-                                                               wellPanel(style = "background: white",
-                                                                         checkboxGroupInput("love_list",
-                                                                                            "How much Love?:",
-                                                                                            choices = love_words,
-                                                                                            selected = "love",
-                                                                                            inline = TRUE)),
-                                                               wellPanel(style = "background: white",
-                                                                         h4("Info:"),
-                                                                         p("The words appearing before or after the word 'love' (and variants if chosen above), are shown in this network."),
-                                                                         p("Words appearing after 'love' have a red line, and words appearing before 'love' have a black line.")),
-                                                               wellPanel(style = "background: white",
-                                                                         h4("Interact:"),
-                                                                         p("Zoom in, drag, hover and select nodes to reveal the strength of the connection."),
-                                                                         p("For example, common combinations such as 'in love' and 'love you' have thicker lines."))),
-                                                  
-                                                  mainPanel( 
-                                                    p(strong(em("\"I'm for free love, and I'm in free fall. This could be love or nothing at all.\""), "1.4 - A Chicken With Its Head Cut Off")),
-                                                    br(),
-                                                    p("Let's put all this love into context. Explore the network of love below:"),
-                                                    visNetworkOutput("lovenetwork", width = "100%", height = "565px")
-                                                  )
-                          )
-                          )
-                 ),
-                 
-                 # Sentiment analysis by disc and singer
+                 # Third Page -Top 10
                  tabPanel("Love and Trouble",
                           fluidPage(sidebarLayout(position = "right",
                                                   sidebarPanel(style = "background: black",
@@ -270,18 +243,18 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                           )
                  ),
                  
-                 # Third Page - Clouds        
+                 # Fourth Page - Clouds        
                  tabPanel("Wordclouds",
                           fluidPage(sidebarLayout(position = "left",
                                                   sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
-                                                                         checkboxGroupInput("disc_cloud",
-                                                                                            "Choose Controversial Topic:",
+                                                                         checkboxGroupInput("controversy",
+                                                                                            "Controversial Topic:",
                                                                                             choices = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"),
                                                                                             selected = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"))),
-                                                                         selectInput("disc_cloud",
-                                                                           "Choose subreddit(s)",
-                                                                           choices = ,
+                                                                         selectInput("subreddit",
+                                                                           "Subreddit(s)",
+                                                                           choices = c(),
                                                                            selected = NULL,
                                                                            multiple = FALSE,
                                                                            selectize = TRUE,
@@ -291,13 +264,35 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                                               ),
                                                             
                                                   mainPanel( 
-                                                    p("Hover over the word cloud below, or search for the count of word appearances in the table (bottom left):"),
+                                                    p("Hover over the words below to see each word's the count of word appearances."),
                                                     wordcloud2Output("wordcloud", width = "100%", height = "565px")
                                                   )
                           )
                           )
                  ),
 ),
+
+                 # Fifth Page - About
+                 tabPanel("About", includeCSS("styles.css"),
+                          fluidPage(h1("A New Leaf"),
+                                    br(),
+                                    h3(strong(b("Hadar is a student of data in the early chapters of their journey"))),
+                                    br(),
+                                    h5(em("My Story")),
+                                      p("Born in Baltimore and raised in Colorado,", a("Hadar", href = https://nycdatascience.com/blog/author/hzeigersongmail-com/)
+                                        "grew up in an scientific household. After graduating from Colorado College in 2015 with a BA in Psychology, Hadar went on to explore life within a wide range of professions, from dishwashing at a loved local restaurant to providing student support at Waldorf and other hands-on learning schools. She's also worked in compost management, sustainability education, permaculture and organic farming, professional busking (street performance), music production, animation, film-editing, website design, field-management and canvassing, as well as providing ABA therapy."),
+                                    h5("Journey into Data"),
+                                      p("After a few years of exploration, Hadar started missing school and the challenges of academia. They began dabbling in code, and found the challenge of learning syntax and creating functional code engaging and fun. From there it was a question of where to apply these skills."),
+                                    h4(em("The development of exponential technologies like new biotech and AI hint at a larger trend - one in which humanity can shift from a world of constrainst to one in which we think with a long-term purpose where sustainable food production, housing, and fresh water is available for all."), "- Arvind Gupta"),
+                                    br(),
+                                    br(),
+                                    div(a(img(src = "wall-e.jpg", height = 461.85, width = 800), style="text-align: center;"), href="https://unsplash.com/photos/Sot0f3hQQ4Y?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink"),
+                                  )
+                               )
+                       ),   
+)
+)
+
 
 
 # SHINY SERVER
@@ -329,9 +324,9 @@ server <- function(input, output) {
       geom_hline(aes(yintercept = avg_love, group = disc_number, 
                      colour = disc_colour), linetype = 2, show.legend = FALSE) +
       geom_text(data = toplove_subset(), aes(label = song), angle = 90, size = 3.2, colour = "white",
-                hjust = 1.1, family = "Courier") +
+                hjust = 1.1, family = "Raleway") +
       geom_text(data = commentary_subset(), aes(label = comm, colour = disc_colour), 
-                size = 4, hjust = 1, family = "Courier", show.legend = FALSE) +
+                size = 4, hjust = 1, family = "Raleway", show.legend = FALSE) +
       geom_curve(aes(xend = xend, yend = yend, colour = disc_colour), 
                  data = commentary_subset(),
                  curvature = -0.2, 
@@ -343,7 +338,7 @@ server <- function(input, output) {
       scale_colour_identity() +
       labs(x = "Track", y = "Count") +
       theme_minimal() +
-      theme(text = element_text(family = "Courier"),
+      theme(text = element_text(family = "Raleway"),
             panel.grid.minor.x = element_blank(),
             axis.line.x = element_line(colour = "black", size = 1),
             axis.text = element_text(size = 12),
@@ -359,9 +354,11 @@ server <- function(input, output) {
   #   paste("Volume", input$disc, "has an average love count of", averages_subset(), "per song. Indicated by the dotted line.")
   # })
   
+  
   # word counts (excluding stop words) for word clouds
   word_counts <- reactive({ 
-    req(input$disc)
+    req(input$controversy)
+    req(input$subreddit)
     lovesongs_tidy %>% 
       filter(disc_number %in% input$disc_cloud) %>%
       select(word) %>% 
@@ -372,46 +369,46 @@ server <- function(input, output) {
   
   # Word Clouds
   output$wordcloud <- renderWordcloud2({
-    wordcloud2(word_counts(), size = 1.6, fontFamily = "Courier",
+    wordcloud2(word_counts(), size = 1.6, fontFamily = "Raleway",
                color=rep_len(pal[1:3], nrow(word_counts())), backgroundColor = "white")
   })
   
   
-  # Love Network
-  
-  love_graph_data <- reactive({
-    req(input$love_list)
-    bigram_separated_love %>%
-      filter(word1 %in% input$love_list | word2 %in% input$love_list) %>% 
-      as_tbl_graph() %>% 
-      mutate(color.background = if_else(name %in% input$love_list, "#E00008", "black"),
-             color.border = if_else(name %in% input$love_list, "#E00008", "black"),
-             label = name,
-             labelHighlightBold = TRUE,
-             #size = if_else(name == "love", 70, 25),
-             font.face = "Courier",
-             font.size = if_else(name == "love", 70, 40),
-             font.color = if_else(name %in% input$love_list, "#E00008", "black"),
-             shape = if_else(name %in% input$love_list, "icon", "dot"),
-             icon.face = "FontAwesome",
-             icon.code = "f004",
-             icon.size = if_else(name == "love", 200, 100),
-             icon.color = if_else(name %in% input$love_list, "#E00008", "black")) %>% 
-      activate(edges) %>% 
-      mutate(hoverWidth = n,
-             selectionWidth = n,
-             scaling.max = 20)
-    
-  }) 
-  
-  
-  output$lovenetwork <- renderVisNetwork({
-    
-    visIgraph(love_graph_data()) %>% 
-      visInteraction(hover = TRUE, tooltipDelay = 0) %>% 
-      addFontAwesome()
-    
-  })
+  # # Love Network
+  # 
+  # love_graph_data <- reactive({
+  #   req(input$love_list)
+  #   bigram_separated_love %>%
+  #     filter(word1 %in% input$love_list | word2 %in% input$love_list) %>% 
+  #     as_tbl_graph() %>% 
+  #     mutate(color.background = if_else(name %in% input$love_list, "#E00008", "black"),
+  #            color.border = if_else(name %in% input$love_list, "#E00008", "black"),
+  #            label = name,
+  #            labelHighlightBold = TRUE,
+  #            #size = if_else(name == "love", 70, 25),
+  #            font.face = "Raleway",
+  #            font.size = if_else(name == "love", 70, 40),
+  #            font.color = if_else(name %in% input$love_list, "#E00008", "black"),
+  #            shape = if_else(name %in% input$love_list, "icon", "dot"),
+  #            icon.face = "FontAwesome",
+  #            icon.code = "f004",
+  #            icon.size = if_else(name == "love", 200, 100),
+  #            icon.color = if_else(name %in% input$love_list, "#E00008", "black")) %>% 
+  #     activate(edges) %>% 
+  #     mutate(hoverWidth = n,
+  #            selectionWidth = n,
+  #            scaling.max = 20)
+  #   
+  # }) 
+  # 
+  # 
+  # output$lovenetwork <- renderVisNetwork({
+  #   
+  #   visIgraph(love_graph_data()) %>% 
+  #     visInteraction(hover = TRUE, tooltipDelay = 0) %>% 
+  #     addFontAwesome()
+  #   
+  # })
   
   
   # sentiment plot
@@ -421,9 +418,9 @@ server <- function(input, output) {
     ggplot(song_sentiment_tidy, aes(x = order, y = perc)) +
       geom_col(aes_string(fill = input$sent_fill)) + 
       geom_text(aes(label = song, y = 0.48), hjust = 1,
-                family = "Courier") +
+                family = "Raleway") +
       geom_text(aes(label = scales::percent(perc, accuracy = .1)), hjust = 1.1,
-                family = "Courier", colour = "white") +
+                family = "Raleway", colour = "white") +
       coord_flip() +
       facet_wrap(~ sentiment, scales = "free_y") +
       scale_x_continuous(breaks = song_sentiment_tidy$order,
@@ -433,7 +430,7 @@ server <- function(input, output) {
       scale_fill_manual(values = sentiment_pal) +
       labs(y = "\n% of Positive/Negative Sentiment", fill = NULL) +
       theme_minimal() +
-      theme(text = element_text(family = "Courier"),
+      theme(text = element_text(family = "Raleway"),
             panel.grid.minor.y = element_blank(),
             panel.spacing = unit(1, "cm"),
             panel.border = element_rect(fill = NA, colour = "black", size = 1),
@@ -471,7 +468,7 @@ server <- function(input, output) {
     ggplot(tibble(x = 1:10, y = 1:10, label = paste0("...", blueshade()$colourname)), 
            aes(x, y)) +
       geom_point(colour = blueshade()$colourhex, show.legend = FALSE) +
-      geom_text(aes(label = label, x = 5, y = 5), family = "Courier", size = 8,
+      geom_text(aes(label = label, x = 5, y = 5), family = "Raleway", size = 8,
                 colour = "white", show.legend = FALSE) +
       scale_x_continuous(limits = c(0, 10), expand = c(0,0)) +
       scale_y_continuous(limits = c(0, 10), expand = c(0,0)) +

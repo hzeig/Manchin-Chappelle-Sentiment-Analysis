@@ -25,8 +25,8 @@ library(stringr)
 ### Load and merge dataframes
 ```{r}
 # import DFs
-jm_comm <- read.csv("Joe Manchin Comments.csv")
-jm_thre <- read.csv("Joe Manchin Threads.csv")
+jm_comm <- read.csv("jmcomments.csv")
+jm_thre <- read.csv("jmthreads.csv")
 
 
 # merge into one DF
@@ -100,7 +100,7 @@ summary(jm_sr_comm)
 plot(density(jm_sr_titl$ave_sentiment), 
      xlim=c(-1.5,1.5),
      ylim=c(0,7),
-     main = "Average Sentiment by Text", 
+     main = "JM Average Sentiment by Text", 
      xlab = "Average sentimentr Score")
 lines(density(jm_sr_thre$ave_sentiment),
       col = 2)
@@ -159,117 +159,12 @@ df14 <- merge(jm_sr_titl, jm_thre)
 ```{r}
 # jm_vd_thre <- vader_df(jm_thre$text)
 # jm_vd_comm <- vader_df(jm_comm$comment)
-# write.csv(jm_vd_thre, "jm vader thread sents.csv", row.names = F)
-# write.csv(jm_vd_comm,"jm vader comment sents.csv", row.names = F)
+# write.csv(jm_vd_thre, "jmvader.threads.csv", row.names = F)
+# write.csv(jm_vd_comm,"jmvader.comments.csv", row.names = F)
 
-jm_vd_thre <- read.csv('jm vader thread sents.csv')
-jm_vd_comm <- read.csv('jm vader comment sents.csv')
+jm_vd_thre <- read.csv('jmvader.threads.csv')
+jm_vd_comm <- read.csv('jmvader.comments.csv')
 
-
-# jm_sents <- rename(jm_vc_comm,comment = text)
-# 
-# head(jm_sents)
-# jm_uv <- merge(jmfull,jm_sentsM)
-# head(jm_uv)
-# write.csv(jm_uv, "Vader Comment Data Merge.csv", row.names = F)
-# 
-# View(jm_uv)
-# 
-# cor(jm_uv)
-# 
-
-```
-
-
-```{r}
-# dsent <- jm_sents[,c(3:6)]
-# 
-# plot(dsent$pos, dsent$neg)
-# # drops <- c("word_scores","but_count")
-# # jm_sents1 <- jm_sents[ , !(names(jm_sents) %in% drops)]
-# ```
-# ```{r}
-# # measuring for average length of comment
-# 
-# play <- jm_sents$text
-# 
-# play3 <- sapply(play, str_count)
-# head(play3)
-# 
-# play2 <- strsplit(play, " ")
-# 
-# wl <- sapply(play2, length)
-# 
-# mean(wl)
-# summary(wl)
-# 
-# plot(density(wl))
-# 
-# library(MASS)
-# ```
-# 
-# 
-# ```{r}
-# dsent1 <- pivot_longer(dsent, c(1:4), 
-#                        names_to = "type", 
-#                        values_to = "valence", 
-#                        values_drop_na = TRUE)
-# 
-# dmeans <- dsent1 %>% 
-#   group_by(type) %>% 
-#   summarise(avg_valence = mean(valence))
-# 
-# dtype <- dsent1 %>% group_by(type)
-# 
-# barplot(dmeans$avg_valence)
-# boxplot(dtype$valence ~ dtype$type)
-# 
-# dtype
-
-```
-
-### upvote analysis
-
-```{r}
-
-
-
-```
-
-## Joe Manchin analysis
-
-```{r}
-
-
-jmfull <- read.csv("Joe Manchin Comments.csv")
-jmfull$comment[1:5]
-jm_sents <- vader_df(jmfull$comment)
-View(jm_sents)
-write.csv(jm_sents,"JM vader sents.csv", row.names = F)
-jm_sents <- read.csv('JM vader sents.csv')
-
-str(jm_sents)
-
-jsent <- jm_sents[,c(3:6)]
-
-
-# drops <- c("word_scores","but_count")
-# jm_sents1 <- jm_sents[ , !(names(jm_sents) %in% drops)]
-
-
-
-jsent1 <- pivot_longer(jsent, c(1:4), names_to = "type", values_to = "valence", values_drop_na = TRUE)
-
-jmeans <- jsent1 %>% 
-  group_by(type) %>% 
-  summarise(avg_valence = mean(valence))
-
-?barplot
-
-barplot(jmeans$avg_valence)
-jsent_type <- jsent1 %>% group_by(type)
-
-boxplot(jsent_type, xlab='measure', ylab='valence', ann=T)
 
 
 ```
