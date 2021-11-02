@@ -4,7 +4,7 @@ October 27th, 2021
 
 ### A comparison of reddit sentiments regarding the following recent controversies:  
 - Joe Manchin's rejection of climate change mitigating strategies in the Build Back Better bill proposed by Democrats in Congress
-- Dave Chappelle's anti-trans/trans-critical comments in his stand-up comedy special hosted on Netflix
+- Dave Chappelle's offensive comments in his stand-up comedy special 'The Closer' hosted on Netflix
 
 The purpose of this study is to investigate population sentiments regarding these controversies 
 using sentiment analysis of title, thread, and comment data from related searches in
