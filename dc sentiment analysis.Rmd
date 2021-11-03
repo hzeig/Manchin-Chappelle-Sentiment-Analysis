@@ -31,15 +31,13 @@ dc_thre <- read.csv("dcthreads.csv")
 
 
 # merge into one DF
-dc_thre <- dc_thre %>% dplyr::select(subreddit, url, thread.author=author, 
-                                     thread.date=date, title, 
-                                     post=text, 
-                                     thread.score=score, 
-                                     thread.number.comments=comments)
+dc_thre <- dc_thre %>% dplyr::select(url, subreddit, 
+                                     thread.date=date, 
+                                     title, post=text, 
+                                     thread.score=score)
 
-dc_comm <- dc_comm %>% dplyr::select(url, comment.author=author, 
-                                     comment.date=date, comment, 
-                                     comment.score=score, comment_id)
+dc_comm <- dc_comm %>% dplyr::select(url, comment.date=date, 
+                                     comment, comment.score=score)
 
 
 dc_full <- merge(dc_thre, dc_comm)

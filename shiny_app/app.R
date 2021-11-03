@@ -17,8 +17,7 @@ both_full <- read_rds("69LoveSongs.rds")
 dc_full <- read_rds()
 jm_full <- read_rds()
 
-
-
+# ggplot(data=data.frame(x=df1$x,y=df2$y), aes(x=x,y=y))    for safe keeping
 
 # FIRST TAB - Manchin vs Chapelle Overall
 

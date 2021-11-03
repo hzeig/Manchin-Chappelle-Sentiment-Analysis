@@ -23,6 +23,7 @@ library(stringr)
 ```
 
 ### Load and merge dataframes
+
 ```{r}
 # import DFs
 jm_comm <- read.csv("jmcomments.csv")
@@ -31,7 +32,7 @@ jm_thre <- read.csv("jmthreads.csv")
 
 # merge into one DF
 jm_thre <- jm_thre %>% dplyr::select(subreddit, url, thread.author=author, 
-                                     thread.date=date, thread.title=title, 
+                                     thread.date=date, title, 
                                      post=text, 
                                      thread.score=score, 
                                      thread.number.comments=comments)
@@ -44,6 +45,76 @@ jm_comm <- jm_comm %>% dplyr::select(url, comment.author=author,
 jm_full <- merge(jm_thre, jm_comm)
 
 ```
+
+
+
+### Valence Aware Dictionary and sEntiment Reasoner (VADER)
+
+```{r}
+# get sentiments 
+
+jm_vd_titl <- vader_df(jm_full$title)
+jm_vd_post <- vader_df(jm_full$post)
+jm_vd_comm <- vader_df(jm_comm$comment)
+
+write.csv(jm_vd_titl, "jmvader.titles.csv", row.names = F)
+write.csv(jm_vd_post,"jmvader.posts.csv", row.names = F)
+write.csv(jm_vd_comm,"jmvader.comments.csv", row.names = F)
+
+
+jm_vd_titl <- read.csv('jmvader.titles.csv')
+jm_vd_post <- read.csv('jmvader.posts.csv')
+jm_vd_comm <- read.csv('jmvader.comments.csv')
+
+
+sum(is.na(jm_vd_titl$neu))
+
+
+jm_vd_titl %>%anti_join(stop_words, by = "title")
+
+
+```
+
+
+## pos/neg across texts - density
+
+```{r}
+ggplot(data = jm_vd_comm, aes(x=pos, fill='yellow',alpha=.5))+
+  geom_density() +
+  # Change the fill colour to differentiate it
+  geom_density(data=jm_vd_post, fill="purple", alpha = .3) +
+  geom_density(data=drop_na(jm_vd_titl), fill="green", alpha = .3) +
+  labs(title = "Distribution of positivity") +
+  labs(y="Density")+
+  labs(x="positive response")
+
+p1
+```
+
+
+## pos/neg across texts across time - line
+
+```{r}
+
+jm_date <- jm_thre %>% select(date=thread.date,title,post)
+jm_vd_title_s <- jm_vd_titl %>% select (title=text, pos, neg)
+jm_vd_date <- merge(jm_date, distinct(jm_vd_title_s))
+jm_vd_date$date <- ymd(jm_vd_date$date)
+
+
+p <- ggplot(data = jm_vd_date, aes(x=date, y=pos)) +
+  geom_line( color="#69b3a2") + 
+  xlab("date") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1)) 
+p
+
+sum(is.na(distinct(jm_vd_post)))
+j <- distinct(jm_vd_post)
+
+
+```
+
 
 
 ### sentimentr 
@@ -148,25 +219,6 @@ df14 <- merge(jm_sr_titl, jm_thre)
 
 ```{r}
 # 3. Trends over time
-
-
-```
-
-
-
-### Valence Aware Dictionary and sEntiment Reasoner (VADER)
-
-```{r}
-jm_vd_titl <- vader_df(jm_full$title)
-jm_vd_post <- vader_df(jm_full$post)
-jm_vd_comm <- vader_df(jm_comm$comment)
-write.csv(jm_vd_titl, "jmvader.titles.csv", row.names = F)
-write.csv(jm_vd_post,"jmvader.posts.csv", row.names = F)
-write.csv(jm_vd_comm,"jmvader.comments.csv", row.names = F)
-
-jm_vd_thre <- read.csv('jmvader.threads.csv')
-jm_vd_comm <- read.csv('jmvader.comments.csv')
-
 
 
 ```
