@@ -32,7 +32,7 @@ jm_thre <- read.csv("jmthreads.csv")
 # merge into one DF
 jm_thre <- jm_thre %>% dplyr::select(subreddit, url, thread.author=author, 
                                      thread.date=date, thread.title=title, 
-                                     thread.text=text, 
+                                     post=text, 
                                      thread.score=score, 
                                      thread.number.comments=comments)
 
@@ -157,10 +157,12 @@ df14 <- merge(jm_sr_titl, jm_thre)
 ### Valence Aware Dictionary and sEntiment Reasoner (VADER)
 
 ```{r}
-# jm_vd_thre <- vader_df(jm_thre$text)
-# jm_vd_comm <- vader_df(jm_comm$comment)
-# write.csv(jm_vd_thre, "jmvader.threads.csv", row.names = F)
-# write.csv(jm_vd_comm,"jmvader.comments.csv", row.names = F)
+jm_vd_titl <- vader_df(jm_full$title)
+jm_vd_post <- vader_df(jm_full$post)
+jm_vd_comm <- vader_df(jm_comm$comment)
+write.csv(jm_vd_titl, "jmvader.titles.csv", row.names = F)
+write.csv(jm_vd_post,"jmvader.posts.csv", row.names = F)
+write.csv(jm_vd_comm,"jmvader.comments.csv", row.names = F)
 
 jm_vd_thre <- read.csv('jmvader.threads.csv')
 jm_vd_comm <- read.csv('jmvader.comments.csv')

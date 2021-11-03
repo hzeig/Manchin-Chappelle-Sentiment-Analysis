@@ -7,8 +7,6 @@ library(tidyverse)
 library(tidytext)
 library(tidygraph)
 library(wordcloud2)
-library(glue)
-library(visNetwork)
 
 # reddit controversy colour palette                
 pal <- c("#FF5700", "black", "#858B8E", "white")
@@ -24,44 +22,46 @@ jm_full <- read_rds()
 
 # FIRST TAB - Manchin vs Chapelle Overall
 
-# all words beginning with lov - to get occurences of 'love' plus variants
-love_words <- sort(unique(str_subset(lovesongs_tidy$word, "^lov")))
-love_words
-
-# put above words into single string for use in title of plot
-love_words_collapse <- paste(love_words, collapse = ", ")
-
-# count up uses of love (and variants in each song). calculate average use per song, at disc level
-love_counts <- lovesongs_tidy %>% 
-  group_by(song, disc_number, track_number) %>% 
-  summarise(love_count = sum(word %in% love_words)) %>% 
-  arrange(disc_number, track_number) %>% 
-  ungroup() %>% 
-  group_by(disc_number) %>% 
-  mutate(avg_love = mean(love_count),
-         disc_colour = case_when(disc_number == 1 ~ "black",
-                                 disc_number == 2 ~ "#E00008",
-                                 TRUE ~ "#858B8E")) %>% 
-  ungroup()
-
-# songs with most love ocurrences
-top_love <- love_counts %>% 
-  top_n(5, love_count)
-
-# annotation to add to most loved songs
-commentary <- tibble(track_number = c(18, 11, 5), 
-                     love_count = c(18, 11, 14), 
-                     disc_number = c(1, 2, 3),
-                     disc_colour =  c("black", "#E00008", "#858B8E"),
-                     xend = c(21.5, 13, 2.5), 
-                     yend = c(20, 9, 12),
-                     comm = c("Contains a lot of lovin'", "Also contains music,\nwine and revolution", "...to fall in love "))
 
 
-# average love per song for each disc
-averages <- love_counts %>% 
-  distinct(disc_number, avg_love) %>% 
-  mutate(avg_love = round(avg_love, 2))
+# # all words beginning with lov - to get occurences of 'love' plus variants
+# love_words <- sort(unique(str_subset(lovesongs_tidy$word, "^lov")))
+# love_words
+# 
+# # put above words into single string for use in title of plot
+# love_words_collapse <- paste(love_words, collapse = ", ")
+# 
+# # count up uses of love (and variants in each song). calculate average use per song, at disc level
+# love_counts <- lovesongs_tidy %>% 
+#   group_by(song, disc_number, track_number) %>% 
+#   summarise(love_count = sum(word %in% love_words)) %>% 
+#   arrange(disc_number, track_number) %>% 
+#   ungroup() %>% 
+#   group_by(disc_number) %>% 
+#   mutate(avg_love = mean(love_count),
+#          disc_colour = case_when(disc_number == 1 ~ "black",
+#                                  disc_number == 2 ~ "#E00008",
+#                                  TRUE ~ "#858B8E")) %>% 
+#   ungroup()
+# 
+# # songs with most love ocurrences
+# top_love <- love_counts %>% 
+#   top_n(5, love_count)
+# 
+# # annotation to add to most loved songs
+# commentary <- tibble(track_number = c(18, 11, 5), 
+#                      love_count = c(18, 11, 14), 
+#                      disc_number = c(1, 2, 3),
+#                      disc_colour =  c("black", "#E00008", "#858B8E"),
+#                      xend = c(21.5, 13, 2.5), 
+#                      yend = c(20, 9, 12),
+#                      comm = c("Contains a lot of lovin'", "Also contains music,\nwine and revolution", "...to fall in love "))
+# 
+# 
+# # average love per song for each disc
+# averages <- love_counts %>% 
+#   distinct(disc_number, avg_love) %>% 
+#   mutate(avg_love = round(avg_love, 2))
 
 
 
@@ -95,56 +95,56 @@ averages <- love_counts %>%
 # sentiment by volume and singer
 
 # read in singers for each song
-singers <- read_rds("69LoveSongs_Singers.rds")
-
-# add onto tidy data
-lovesongs_tidy_singer <- lovesongs_tidy %>% 
-  inner_join(singers, by = "song_number")
-
-# attach positive or negative sentiment to each word
-bing_sentiment <- lovesongs_tidy_singer %>% 
-  left_join(get_sentiments("bing"), by = "word")
-
-# get positive and negative percentage for each song
-# keep songs with at least 20 distinct words
-song_sentiment <- bing_sentiment %>% 
-  group_by(song, disc_number, disc_track_no, singer) %>% 
-  summarise(Positive = sum(sentiment == "positive", na.rm = TRUE) / n(),
-            Negative = sum(sentiment == "negative", na.rm = TRUE) / n(),
-            distinct_words = n_distinct(word),
-            all_words = n()) %>% 
-  filter(distinct_words >= 20) %>% 
-  ungroup()
-
-# top 10 positive sentiment % and top 10 negative sentiment %
-song_sentiment_tidy <- song_sentiment %>% 
-  gather(sentiment, perc, -c(1:4, 7:8)) %>% 
-  group_by(sentiment) %>% 
-  arrange(desc(perc)) %>% 
-  filter(row_number() <= 10) %>% 
-  ungroup() %>% 
-  arrange(sentiment, perc) %>% 
-  mutate(order = row_number(),
-         perc = round(perc, 3),
-         disc_number = as.factor(disc_number),
-         singer = fct_relevel(singer, c("Stephin Merritt")),
-         singer = fct_relevel(singer, c("Merritt, Beghtol"), after = Inf))
-
-
-# THIRD TAB - Wordcloud
-
-# LAST TAB - Making me blue dataset*
-blueshades <- tibble(colourname = c("Pantone 292", "Crayola Blue", "Liberty", "Space Cadet", "Teal", "Ultramarine"),
-                     colourhex = c("#62A8E5", "#1F75FE", "#545AA7", "#1D2951", "#008080", "#4000FF"))
+# singers <- read_rds("69LoveSongs_Singers.rds")
+# 
+# # add onto tidy data
+# lovesongs_tidy_singer <- lovesongs_tidy %>% 
+#   inner_join(singers, by = "song_number")
+# 
+# # attach positive or negative sentiment to each word
+# bing_sentiment <- lovesongs_tidy_singer %>% 
+#   left_join(get_sentiments("bing"), by = "word")
+# 
+# # get positive and negative percentage for each song
+# # keep songs with at least 20 distinct words
+# song_sentiment <- bing_sentiment %>% 
+#   group_by(song, disc_number, disc_track_no, singer) %>% 
+#   summarise(Positive = sum(sentiment == "positive", na.rm = TRUE) / n(),
+#             Negative = sum(sentiment == "negative", na.rm = TRUE) / n(),
+#             distinct_words = n_distinct(word),
+#             all_words = n()) %>% 
+#   filter(distinct_words >= 20) %>% 
+#   ungroup()
+# 
+# # top 10 positive sentiment % and top 10 negative sentiment %
+# song_sentiment_tidy <- song_sentiment %>% 
+#   gather(sentiment, perc, -c(1:4, 7:8)) %>% 
+#   group_by(sentiment) %>% 
+#   arrange(desc(perc)) %>% 
+#   filter(row_number() <= 10) %>% 
+#   ungroup() %>% 
+#   arrange(sentiment, perc) %>% 
+#   mutate(order = row_number(),
+#          perc = round(perc, 3),
+#          disc_number = as.factor(disc_number),
+#          singer = fct_relevel(singer, c("Stephin Merritt")),
+#          singer = fct_relevel(singer, c("Merritt, Beghtol"), after = Inf))
+# 
+# 
+# # THIRD TAB - Wordcloud
+# 
+# # LAST TAB - Making me blue dataset*
+# blueshades <- tibble(colourname = c("Pantone 292", "Crayola Blue", "Liberty", "Space Cadet", "Teal", "Ultramarine"),
+#                      colourhex = c("#62A8E5", "#1F75FE", "#545AA7", "#1D2951", "#008080", "#4000FF"))
 
 
 
 # SHINY UI
-ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
+ui <- navbarPage(inverse = TRUE, "Reddit",
                  
                  # First Page - Intro        
                  tabPanel("Intro", includeCSS("styles.css"),
-                          fluidPage(h1("Reddit Controversies: Dave Chapelle vs Joe Manchin"),
+                          fluidPage(h1("Controversies on Reddit: Dave Chapelle vs Joe Manchin"),
                                     br(),
                                     h3(strong(b("A Sentiment Analysis of Reddit-user Response to Current Controversies"))),
                                     br(),
@@ -153,8 +153,8 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                         a("Dave Chapelle", href="https://en.wikipedia.org/wiki/Dave_Chappelle"),
                                         "'s hour-long stand-up comedy show special",
                                         a("'The Closer' (2021)", href="https://en.wikipedia.org/wiki/The_Closer_(2021_film)"),
-                                        "on it's streaming platform. Within a few days of it's release, viewers of all backgrounds became vocally critical of offensive remarks Chappelle made in the show. In an escalating battle for Netflix to discontinue streaming Chappelle's special, Netflix employee's have been protesting with political action in various forms. These include staging a walkout, leaking profitability data to Bloomberg News, and filing a federal labor charge", 
-                                      p("- Over the past month, senators in Congress have been voting and negotiating on an infrastructure bill that's part of POTUS Joe Biden's",
+                                        "on it's streaming platform. Within a few days of it's release, viewers of all backgrounds became vocally critical of remarks Chappelle made in the show. In an escalating battle for Netflix to discontinue streaming Chappelle's special, Netflix employee's have been protesting with political action in various forms. These include staging a walkout, leaking profitability data to Bloomberg News, and filing a federal labor charge", 
+                                      p("- Over the past month, senators in Congress have been negotiating an infrastructure bill that is a key part of POTUS Joe Biden's",
                                         a("'Build Back Better' agenda.", href="https://en.wikipedia.org/wiki/Build_Back_Better_Plan"),
                                         "One of the key actors in these negotiations has been",
                                         a("Joe Manchin,",href="https://en.wikipedia.org/wiki/Joe_Manchin"), 
@@ -179,7 +179,7 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                  )
         ),                 
                  # Second Page  - Overall Comparison      
-                 tabPanel("Overview",
+                 tabPanel("At First Glance",
                           fluidPage(sidebarLayout(position = "left",
                                                   sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
@@ -188,10 +188,8 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                                                      choices = 1:3,
                                                                                      selected = 1)),
                                                                wellPanel(style = "background: white",
-                                                                         selectInput("plot",
-                                                                                     "Plot type:",
-                                                                                     choices = 1:3,
-                                                                                     selected = 1)             
+                                                                         sliderInput("n", "Number of plots", value=1, min=1, max=4),
+                                                                         
                                                                # wellPanel(style = "background: white",
                                                                #           h3("Info:"),
                                                                #           textOutput("lovecount_desc"),
@@ -203,23 +201,31 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                   mainPanel(
                                                     h3(strong("Overview: EDA Comparisons"),
                                                     br(),
-                                                    p("Choose text and plot type to see how reddit-user sentiments compare."),
+                                                    p("Choose text and any number of plots to see how reddit-user sentiments compare."),
                                                     br(),
-                                                    plotOutput("lovecountPlot", width = "100%")
+                                                    uiOutput("plots")
+                                                        
+                                                      ))
+                                                    )
+                                                   
                                                   )
                           )
                           )
-                 ),
+                 )
                  
                  
-                 # Third Page -Top 10
-                 tabPanel("Love and Trouble",
-                          fluidPage(sidebarLayout(position = "right",
-                                                  sidebarPanel(style = "background: black",
+                 # Third Page - Sentiment Explore
+                 tabPanel("'Tell Me How You Really Feel'",
+                          fluidPage(sidebarLayout(position = "left",
+                                                  sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
                                                                          selectInput("sent_fill",
-                                                                                     "Colour bars by:",
-                                                                                     choices = c("Volume" = "disc_number", "Singer" = "singer"),
+                                                                                     "Choose topic:",
+                                                                                     choices = c("Joe Manchin Controversy" = "jm_full", "Dave Chappelle Controversy" = "dc_full"),
+                                                                                     selected = "jm_full")),
+                                                                         selectInput("sent_fill",
+                                                                                     "Choose text format:",
+                                                                                     choices = c("Titles" = "", "Posts" = "", "Comments" = ""),
                                                                                      selected = "disc_number")),
                                                                wellPanel(style = "background: white",
                                                                          p("Two songs, A Chicken with Its Head Cut Off and My Sentimental Melody, 
@@ -241,10 +247,45 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                   )
                           )
                           )
-                 ),
                  
-                 # Fourth Page - Clouds        
-                 tabPanel("Wordclouds",
+                 # Fourth.2 Page  - Subreddit data      
+                 tabPanel("Subs",
+                          fluidPage(sidebarLayout(position = "left",
+                                                  sidebarPanel(style = "background: #FF5700",
+                                                               wellPanel(style = "background: white",
+                                                                         checkboxGroupInput("controversy",
+                                                                                            "Controversial Topic:",
+                                                                                            choices = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"),
+                                                                                            selected = c("Dave Chappelle, Netflix, 'The Closer'","Joe Manchin, Build Back Better"))),
+                                                               wellPanel(style = "background: white",
+                                                                         sliderInput("n", "Number of plots", value=1, min=1, max=4),
+                                                                         
+                                                                         # wellPanel(style = "background: white",
+                                                                         #           h3("Info:"),
+                                                                         #           textOutput("lovecount_desc"),
+                                                                         #           br(),
+                                                                         #           p("The 'loveliest' songs are annotated.")),
+                                                               )
+                                                  ),
+                                                  
+                                                  mainPanel(
+                                                    h3(strong("Overview: EDA Comparisons"),
+                                                       br(),
+                                                       p("Choose text and any number of plots to see how reddit-user sentiments compare."),
+                                                       br(),
+                                                       uiOutput("plots")
+                                                       
+                                                    ))
+                          )
+                          
+                          )
+                 )
+                 )
+)
+                 
+                                  
+                 # Fifth Page - Clouds        
+                 tabPanel("Clouds",
                           fluidPage(sidebarLayout(position = "left",
                                                   sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
@@ -264,34 +305,49 @@ ui <- navbarPage(inverse = TRUE, "Controversied on Reddit",
                                                                               ),
                                                             
                                                   mainPanel( 
-                                                    p("Hover over the words below to see each word's the count of word appearances."),
+                                                    p("Hover over the words below to see each word's appearance count"),
                                                     wordcloud2Output("wordcloud", width = "100%", height = "565px")
                                                   )
                           )
                           )
-                 ),
-),
+                 )
 
-                 # Fifth Page - About
-                 tabPanel("About", includeCSS("styles.css"),
-                          fluidPage(h1("A New Leaf"),
+
+                 
+                 # Sixth Page - NLP Notes and Future Steps
+                 tabPanel("Notes and References", includeCSS("styles.css"),
+                          fluidPage(h1("Technological Niavete"),
+                                    h5("It should be stated that due to the extremely niche use of language within individual subreddits, all sentiment evaluations in this project are subject to a potentially large margin of error."),
+                                    p("Luckily, solutions to this issue exist. A project by William L. Hamilton, Kevin Clark, Jure Leskovec, and Dan Jurafsky about"), 
+                                      a("inducing domain-specific sentiment lexicons from unlabeled corpora", href = "https://arxiv.org/abs/1606.02820"),
+                                      "(2016) contains code that could be adapted to create unsupervised machine learning models that automatically generate and update individualized lexicon dictionaries for every subreddit scraped. This would be useful both for improving the accuracy of the data presented, as well as to open the possibility of a self-updating app that relays the progression of sentiments over time."),
+                                    p("Additionally, these models could incorporate algorithms inspired by packages like", a("syuzhet", href="https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html"), 
+                                      "(among others) that currently have limited valence sensitivity but offer a broader range of emotional information (surprise, disgust, fear, anger, etc) or the ability to pull up the topics associated with high-valence language."), 
+                                    p("The data in presented in this app was derived using", a("RedditExtractoR", href="https://cran.r-project.org/web/packages/RedditExtractoR/RedditExtractoR.pdf"),
+                                      "for data collection, and for sentiment analysis ",
+                                      a("VADER (Valence Aware Dictionary and sEntimentiment Reasoner)", href = "https://cran.r-project.org/web/packages/vader/vader.pdf"),
+                                    ", an R package designed to assess the emotion of language used in social media specifically."),
+                 )
+                 
+                 
+                 # Seventh Page - About
+                 tabPanel("About the Author", includeCSS("styles.css"),
+                          fluidPage(h1("Turning A New Leaf"),
                                     br(),
-                                    h3(strong(b("Hadar is a student of data in the early chapters of their journey"))),
+                                    h3(strong(b("Hadar is a student of data in the early chapters of their journey..."))),
                                     br(),
-                                    h5(em("My Story")),
-                                      p("Born in Baltimore and raised in Colorado,", a("Hadar", href = https://nycdatascience.com/blog/author/hzeigersongmail-com/)
-                                        "grew up in an scientific household. After graduating from Colorado College in 2015 with a BA in Psychology, Hadar went on to explore life within a wide range of professions, from dishwashing at a loved local restaurant to providing student support at Waldorf and other hands-on learning schools. She's also worked in compost management, sustainability education, permaculture and organic farming, professional busking (street performance), music production, animation, film-editing, website design, field-management and canvassing, as well as providing ABA therapy."),
+                                    h5("Background"),
+                                      p("Born in Baltimore and raised in Colorado,", a("Hadar", href = "https://nycdatascience.com/blog/author/hzeigersongmail-com/"),
+                                        "grew up in an scientific household. After graduating from Colorado College in 2015 with a BA in Psychology, Hadar went on to explore a wide range of professions, from dishwashing at a loved local restaurant to providing student support at Waldorf and other hands-on learning schools. She's also worked in compost management, sustainability education, permaculture and organic farming, professional busking (street performance), music production, animation, film-editing, website design, field-management and canvassing, as well as ABA therapy."),
                                     h5("Journey into Data"),
-                                      p("After a few years of exploration, Hadar started missing school and the challenges of academia. They began dabbling in code, and found the challenge of learning syntax and creating functional code engaging and fun. From there it was a question of where to apply these skills."),
+                                      p("After a few years of exploration, Hadar started missing the challenges of academia. At the recommendation friends working in software and data technologies, Hadar began dabbling in code, and found the challenge of learning syntax and creating functional code engaging and fun. From there the question became, 'Where to apply these skills?'"),
                                     h4(em("The development of exponential technologies like new biotech and AI hint at a larger trend - one in which humanity can shift from a world of constrainst to one in which we think with a long-term purpose where sustainable food production, housing, and fresh water is available for all."), "- Arvind Gupta"),
                                     br(),
                                     br(),
                                     div(a(img(src = "wall-e.jpg", height = 461.85, width = 800), style="text-align: center;"), href="https://unsplash.com/photos/Sot0f3hQQ4Y?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink"),
                                   )
                                )
-                       ),   
-)
-)
+                       
 
 
 

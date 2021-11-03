@@ -187,25 +187,37 @@ df14 <- merge(dc_sr_titl, dc_thre)
 
 ```{r}
 
+dc_full %>% group_by(post) %>% unique(post)
+
+
 # get vader sentiment data
 
 dc_vd_titl <- dc_full %>% group_by(title) %>% vader_df(title)
-dc_vd_thre <- dc_full %>% group_by(post) %>% vader_df(post)
+dc_vd_post <- dc_full %>% group_by(post) %>% vader_df(post)
 dc_vd_comm <- dc_full %>% vader_df(comment)
 
 
-# write into csv
+# write into csv/rds
 
-saveRDS(dc_vd_titl, "dcvader.titles.rds", row.names = F)
-saveRDS(dc_vd_thre, "dcvader.post.rds", row.names = F)
-saveRDS(dc_vd_comm,"dcvader.comments.rds", row.names = F)
+write.csv(dc_vd_titl, "dcvader.titles.csv", row.names = F)
+write.csv(dc_vd_post, "dcvader.posts.csv", row.names = F)
+write.csv(dc_vd_comm,"dcvader.comments.csv", row.names = F)
+
+saveRDS(dc_vd_titl, "dcvader.titles.rds")
+saveRDS(dc_vd_thre, "dcvader.posts.rds")
+saveRDS(dc_vd_comm,"dcvader.comments.rds")
 
 
 # read back into df
 
-dc_vd_titl <- read_rds('dcvader.titles.rds')
-dc_vd_post <- read_rds('dcvader.threads.rds')
-dc_vd_comm <- read_rds('dcvader.comments.rds')
+dc_vd_titl2 <- read_csv('dcvader.titles.csv')
+dc_vd_post2 <- read_csv('dcvader.posts.csv')
+dc_vd_comm2 <- read_csv('dcvader.comments.csv')
+
+
+dc_vd_titl3 <- read_rds('dcvader.titles.rds')
+dc_vd_post3 <- read_rds('dcvader.posts.rds')
+dc_vd_comm3 <- read_rds('dcvader.comments.rds')
 
 
 dc_vd_titl <- dc_vd_titl %>%  as_tibble()
@@ -215,29 +227,39 @@ dc_vd_comm <- dc_vd_comm %>%  as_tibble()
 
 # narrow down necessary columns
 
-dc_vd_titl <- dc_vd_titl %>%  select(title = text, 
+dc_vd_titl2 <- dc_vd_titl2 %>%  select(title = text, 
                                      title.compound = compound,
                                      title.pos = pos,
                                      title.neu = neu,
                                      title.neg = neg)
-dc_vd_post <- dc_vd_post %>%  select(post = text, 
+dc_vd_post2 <- dc_vd_post2 %>%  select(post = text, 
                                      post.compound = compound,
                                      post.pos = pos,
                                      post.neu = neu,
                                      post.neg = neg)
-dc_vd_comm <- dc_vd_comm %>%  select(commment = text, 
+dc_vd_comm2 <- dc_vd_comm2 %>%  select(commment = text, 
                                      comm.compound = compound,
                                      comm.pos = pos,
                                      comm.neu = neu,
                                      comm.neg = neg)
 
+
 # merge into one big df with full df
 
-vd_df <- merge(dc_full, dc_vd_titl)
-vd_df <- merge(vd_df, dc_vd_post)
-vd_df <- merge(vd_df, dc_vd_comm)
+vd_df2 <- merge(dc_full, dc_vd_titl2)
+vd_df2 <- merge(vd_df2, dc_vd_post)
+
+## for comments put with full and take thread averages
+
+vd_df_comm <- merge(dc_full, dc_vd_comm)
+
+dc_vd_comm_avgs <- dc_vd_comm %>% group_by(post) %>% mutate(avg. = )
+
+vd_df <- merge(vd_df, dc_vd_comm_avgs)
 
 saveRDS(vd_df, "dcvaderfull.rds")
+
+?problems
 
 
 ```
