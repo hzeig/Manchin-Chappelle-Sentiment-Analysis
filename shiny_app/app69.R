@@ -11,11 +11,17 @@ library(wordcloud2)
 # reddit controversy colour palette                
 pal <- c("#FF5700", "black", "#858B8E", "white")
 
-# data preparation to be done outside of server     # not done
+# data preparation done outside of server     
 # read in data
-both_full <- read_rds("69LoveSongs.rds")
-dc_full <- read_rds()
-jm_full <- read_rds()
+dc_full <- read.csv("dc_full.csv")
+dc_titl <- read.csv("dc_titl.csv")
+dc_post <- read.csv("dc_post.csv")
+dc_comm <- read.csv("dc_comm.csv")
+
+jm_full <- read.csv("jm_full.csv")
+jm_titl <- read.csv("jm_titl.csv")
+jm_post <- read.csv("jm_post.csv")
+jm_comm <- read.csv("jm_comm.csv")
 
 # ggplot(data=data.frame(x=df1$x,y=df2$y), aes(x=x,y=y))    for safe keeping
 
@@ -23,121 +29,8 @@ jm_full <- read_rds()
 
 
 
-# # all words beginning with lov - to get occurences of 'love' plus variants
-# love_words <- sort(unique(str_subset(lovesongs_tidy$word, "^lov")))
-# love_words
-# 
-# # put above words into single string for use in title of plot
-# love_words_collapse <- paste(love_words, collapse = ", ")
-# 
-# # count up uses of love (and variants in each song). calculate average use per song, at disc level
-# love_counts <- lovesongs_tidy %>% 
-#   group_by(song, disc_number, track_number) %>% 
-#   summarise(love_count = sum(word %in% love_words)) %>% 
-#   arrange(disc_number, track_number) %>% 
-#   ungroup() %>% 
-#   group_by(disc_number) %>% 
-#   mutate(avg_love = mean(love_count),
-#          disc_colour = case_when(disc_number == 1 ~ "black",
-#                                  disc_number == 2 ~ "#E00008",
-#                                  TRUE ~ "#858B8E")) %>% 
-#   ungroup()
-# 
-# # songs with most love ocurrences
-# top_love <- love_counts %>% 
-#   top_n(5, love_count)
-# 
-# # annotation to add to most loved songs
-# commentary <- tibble(track_number = c(18, 11, 5), 
-#                      love_count = c(18, 11, 14), 
-#                      disc_number = c(1, 2, 3),
-#                      disc_colour =  c("black", "#E00008", "#858B8E"),
-#                      xend = c(21.5, 13, 2.5), 
-#                      yend = c(20, 9, 12),
-#                      comm = c("Contains a lot of lovin'", "Also contains music,\nwine and revolution", "...to fall in love "))
-# 
-# 
-# # average love per song for each disc
-# averages <- love_counts %>% 
-#   distinct(disc_number, avg_love) %>% 
-#   mutate(avg_love = round(avg_love, 2))
-
-
-
-
-# THIRD TAB - LOVE BIGRAM NETWORK
-# 
-# # Love bigrams for network
-# lovesongs_bigram <- lovesongs %>% 
-#   # remove intstructions in [ ]
-#   filter(!str_detect(lyric, "(\\[.*\\])")) %>% 
-#   unnest_tokens(bigram, lyric, token = "ngrams", n = 2)
-# 
-# lovesongs_bigram %>% 
-#   count(bigram, sort = TRUE)
-# 
-# bigram_separated <- lovesongs_bigram %>% 
-#   separate(bigram, c("word1", "word2"), sep = " ")
-# 
-# # bigrams including a love element
-# bigram_separated_love <- 
-#   bigram_separated %>% 
-#   filter(word1 %in% love_words | word2 %in% love_words) %>%  
-#   count(word1, word2, sort = TRUE)
-
-
-
-
-# 4TH TAB - SENTIMENT ANALYSIS*
-
-# sentiment by volume and singer
-
-# read in singers for each song
-# singers <- read_rds("69LoveSongs_Singers.rds")
-# 
-# # add onto tidy data
-# lovesongs_tidy_singer <- lovesongs_tidy %>% 
-#   inner_join(singers, by = "song_number")
-# 
-# # attach positive or negative sentiment to each word
-# bing_sentiment <- lovesongs_tidy_singer %>% 
-#   left_join(get_sentiments("bing"), by = "word")
-# 
-# # get positive and negative percentage for each song
-# # keep songs with at least 20 distinct words
-# song_sentiment <- bing_sentiment %>% 
-#   group_by(song, disc_number, disc_track_no, singer) %>% 
-#   summarise(Positive = sum(sentiment == "positive", na.rm = TRUE) / n(),
-#             Negative = sum(sentiment == "negative", na.rm = TRUE) / n(),
-#             distinct_words = n_distinct(word),
-#             all_words = n()) %>% 
-#   filter(distinct_words >= 20) %>% 
-#   ungroup()
-# 
-# # top 10 positive sentiment % and top 10 negative sentiment %
-# song_sentiment_tidy <- song_sentiment %>% 
-#   gather(sentiment, perc, -c(1:4, 7:8)) %>% 
-#   group_by(sentiment) %>% 
-#   arrange(desc(perc)) %>% 
-#   filter(row_number() <= 10) %>% 
-#   ungroup() %>% 
-#   arrange(sentiment, perc) %>% 
-#   mutate(order = row_number(),
-#          perc = round(perc, 3),
-#          disc_number = as.factor(disc_number),
-#          singer = fct_relevel(singer, c("Stephin Merritt")),
-#          singer = fct_relevel(singer, c("Merritt, Beghtol"), after = Inf))
-# 
-# 
-# # THIRD TAB - Wordcloud
-# 
-# # LAST TAB - Making me blue dataset*
-# blueshades <- tibble(colourname = c("Pantone 292", "Crayola Blue", "Liberty", "Space Cadet", "Teal", "Ultramarine"),
-#                      colourhex = c("#62A8E5", "#1F75FE", "#545AA7", "#1D2951", "#008080", "#4000FF"))
-
-
-
 # SHINY UI
+
 ui <- navbarPage(inverse = TRUE, "Reddit",
                  
                  # First Page - Intro        
