@@ -1,0 +1,57 @@
+/*Use Helvetica font throughout app*/
+
+* {
+  font-family: 'Helvetica', cursive !important;
+}
+
+/*Colour hyperlinks*/
+a {
+  color: #FF5700;
+}
+
+a:hover {
+  color: #858B8E;
+}
+
+/*Colour of nav bar Title*/
+.navbar-default .navbar-brand{
+  color: white;
+}
+
+/*Colour of nav bar tabs when hovering and active*/
+.navbar-default .navbar-nav > .active > a, 
+                           .navbar-default .navbar-nav > .active > a:focus, 
+                           .navbar-default .navbar-nav > .active > a:hover {
+                                color: white;
+                            }
+
+/*Change appearance of checkboxes*/
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Styling checkbox */
+  width: 16px;
+  height: 16px;
+  border: 1px #FF5700;
+  box-shadow: white;
+  background-color: white;
+}
+
+input[type="checkbox"]:checked {
+  border: 1px #FF5700;
+  box-shadow: white;
+  background-color: ##FF5700;
+}
+
+input[type="checkbox"]:checked:after {
+  display: block;
+  box-shadow: white;
+}
+
+input[type="checkbox"]:disabled:after {
+  border-color: #FF5700;
+  box-shadow: white;
+}
+   

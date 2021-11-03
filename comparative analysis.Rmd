@@ -1,17 +1,135 @@
-# Comparative Sentiment Analysis
+# Comparative Sentiment Analyses 
+## prototyping shiny plots
 
 ### Libraries
 
 ```{r}
-library(vader)
 library(dplyr)
-
+library(ggplot2)
+library(wordcloud2)
 ```
+
 
 ### Load data
 
 ```{r}
 
+# dave chapelle, full and vader
+
+dc_full <- read.csv('dcfull.csv')
+dc_vd_titl <- read.csv('dcvader.titles.csv')
+dc_vd_post <- read.csv('dcvader.posts.csv')
+dc_vd_comm <- read.csv('dcvader.comments.csv')
+
+
+
+# joe manchin, full and vader
+
+jm_full <- read.csv('jmfull.csv')
+jm_vd_titl <- read.csv('jmvader.titles.csv')
+jm_vd_post <- read.csv('jmvader.posts.csv')
+jm_vd_comm <- read.csv('jmvader.comments.csv')
+
+```
+
+
+### Reduce to needed values only
+
+```{r}
+
+dc_full <- dc_full %>% select (subreddit, thread.date, title, post, thread.score, thread.number.comments, comment.date, comment, comment.score, comment_id)
+
+
+jm_full <- jm_full %>% select (subreddit, thread.date, title, post, thread.score, thread.number.comments, comment.date, comment, comment.score, comment_id)
+
+
+```
+
+
+```{r}
+
+## cannot merge vader files due to bizarre memory issues
+
+# dc_titl <- dc_vd_titl %>% select(title=text,title.pos=pos,title.neg=neg)
+# dc_post <- dc_vd_post %>% select(post=text,post.pos=pos,post.neg=neg)
+# dc_comm <- dc_vd_comm %>% select(comment=text,comment.pos=pos,comment.neg=neg)
+# 
+# jm_titl <- jm_vd_titl %>% select(title=text,title.pos=pos,title.neg=neg)
+# jm_post <- jm_vd_post %>% select(post=text,post.pos=pos,post.neg=neg)
+# jm_comm <- jm_vd_comm %>% select(comment=text,comment.pos=pos,comment.neg=neg)
+# 
+# dc_vd <- list(dc_titl, dc_post, dc_comm)
+# jm_vd <- list(jm_titl, jm_post, jm_comm)
+#   
+# dc <- Reduce(function(x,y) merge(x,y), dc_vd)
+# jm <- Reduce(function(x,y) merge(x,y), jm_vd)
+# 
+# 
+# class(dc_comm$comment.pos)
+# 
+# memory.size()
+# memory.limit()
+# memory.limit(56000)
+
+```
+
+
+### Tab Two - Overview Comparisons by Text
+
+```{r}
+# options: text (all, title, post, comment), sentiment (pos, neg)
+# for 'all' text option, create summary of vd means 
+
+
+
+
+# density
+
+ggplot() + 
+  geom_density(aes(x=jm_vd_titl$pos))
+  geom_density(aes(x=cd_vd_titl$pos))
+    
+# time series
+
+ggplot() +   
+  
+  
+  
+# scatter with size for score 
+  
+ggplot() + 
+
+
+```
+
+
+### Tab Three - Text Collection by Sentiment
+
+```{r}
+
+
+
+
+
+```
+
+
+### Tab Four - Subreddit Stats
+
+```{r}
+
+# group by subreddit for vd scores 
+
+
+
+```
+
+
+### Tab Five - Wordcloud
+
+```{r}
+
+# combined, contoversy, biggest subreddits 
 
 
 

@@ -19,7 +19,7 @@ jm_full <- read_rds()
 
 # ggplot(data=data.frame(x=df1$x,y=df2$y), aes(x=x,y=y))    for safe keeping
 
-# FIRST TAB - Manchin vs Chapelle Overall
+# SECOND TAB - Manchin vs Chapelle Overall
 
 
 
@@ -87,7 +87,6 @@ jm_full <- read_rds()
 
 
 
-# SECOND TAB - Top 10
 
 # 4TH TAB - SENTIMENT ANALYSIS*
 
