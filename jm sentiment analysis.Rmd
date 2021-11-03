@@ -98,9 +98,11 @@ p1
 
 jm_date <- jm_thre %>% select(date=thread.date,title,post)
 jm_vd_title_s <- jm_vd_titl %>% select (title=text, pos, neg)
+jm_vd_post_s <- jm_vd_post %>% select(post=text,pos,neg)
 jm_vd_date <- merge(jm_date, distinct(jm_vd_title_s))
+jm_vd_datepost <- merge(jm_date, distinct(jm_vd_post_s))
 jm_vd_date$date <- ymd(jm_vd_date$date)
-
+jm_vd_datepost$date <- ymd(jm_vd_datepost$date)
 
 p <- ggplot(data = jm_vd_date, aes(x=date, y=pos)) +
   geom_line( color="#69b3a2") + 
@@ -112,6 +114,14 @@ p
 sum(is.na(distinct(jm_vd_post)))
 j <- distinct(jm_vd_post)
 
+
+p <- ggplot(data = jm_vd_date, aes(x=date, y=pos, fill="purple")) +
+  geom_line() + 
+  geom_line(data = jm_vd_datepost, color="#69b3a2") +
+  xlab("date") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1)) 
+p
 
 ```
 
