@@ -36,40 +36,47 @@ jm_vd_comm <- read.csv('jmvader.comments.csv')
 ### Reduce to needed values only
 
 ```{r}
-
+# full 
 dc_full <- dc_full %>% select (subreddit, thread.date, title, post, thread.score, thread.number.comments, comment.date, comment, comment.score, comment_id)
 
 
 jm_full <- jm_full %>% select (subreddit, thread.date, title, post, thread.score, thread.number.comments, comment.date, comment, comment.score, comment_id)
 
 
+# vader 
+dc_titl <- dc_vd_titl %>% select(text,pos,neg)
+dc_post <- dc_vd_post %>% select(text,pos,neg)
+dc_comm <- dc_vd_comm %>% select(text,pos,neg)
+
+jm_titl <- jm_vd_titl %>% select(text,pos,neg)
+jm_post <- jm_vd_post %>% select(text,pos,neg)
+jm_comm <- jm_vd_comm %>% select(text,pos,neg)
+
 ```
 
-
+# write reduced files into csvs
 ```{r}
 
-## cannot merge vader files due to bizarre memory issues
+write.csv(dc_full, "dc_full.csv", row.names = F)
+write.csv(dc_titl, "dc_titl.csv", row.names = F)
+write.csv(dc_post, "dc_post.csv", row.names = F)
+write.csv(dc_comm, "dc_comm.csv", row.names = F)
 
-# dc_titl <- dc_vd_titl %>% select(title=text,title.pos=pos,title.neg=neg)
-# dc_post <- dc_vd_post %>% select(post=text,post.pos=pos,post.neg=neg)
-# dc_comm <- dc_vd_comm %>% select(comment=text,comment.pos=pos,comment.neg=neg)
-# 
-# jm_titl <- jm_vd_titl %>% select(title=text,title.pos=pos,title.neg=neg)
-# jm_post <- jm_vd_post %>% select(post=text,post.pos=pos,post.neg=neg)
-# jm_comm <- jm_vd_comm %>% select(comment=text,comment.pos=pos,comment.neg=neg)
-# 
-# dc_vd <- list(dc_titl, dc_post, dc_comm)
-# jm_vd <- list(jm_titl, jm_post, jm_comm)
-#   
-# dc <- Reduce(function(x,y) merge(x,y), dc_vd)
-# jm <- Reduce(function(x,y) merge(x,y), jm_vd)
-# 
-# 
-# class(dc_comm$comment.pos)
-# 
-# memory.size()
-# memory.limit()
-# memory.limit(56000)
+write.csv(dc_full, "dc_full.csv", row.names = F)
+write.csv(dc_titl, "dc_titl.csv", row.names = F)
+write.csv(dc_post, "dc_post.csv", row.names = F)
+write.csv(dc_comm, "dc_comm.csv", row.names = F)
+
+write.csv(jm_full, "jm_full.csv", row.names = F)
+write.csv(jm_titl, "jm_titl.csv", row.names = F)
+write.csv(jm_post, "jm_post.csv", row.names = F)
+write.csv(jm_comm, "jm_comm.csv", row.names = F)
+
+write.csv(jm_full, "jm_full.csv", row.names = F)
+write.csv(jm_titl, "jm_titl.csv", row.names = F)
+write.csv(jm_post, "jm_post.csv", row.names = F)
+write.csv(jm_comm, "jm_comm.csv", row.names = F)
+
 
 ```
 
