@@ -26,3 +26,4 @@ https://docs.google.com/presentation/d/18BybPJ9Krvow2nHq1CHLWxeZSn4987Egwz91DlMR
 - code for text mining and clean up
 - code for sentiment analyses
 - code for RShiny app built using this data, which will be available for viewing here:
+https://a6qff7-hadar-zeigeson.shinyapps.io/Reddit_Speaks/
