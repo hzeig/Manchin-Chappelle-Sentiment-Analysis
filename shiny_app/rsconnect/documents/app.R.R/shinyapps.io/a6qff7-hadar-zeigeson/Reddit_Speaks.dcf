@@ -1,0 +1,13 @@
+name: Reddit_Speaks
+title: Reddit_Speaks
+username:
+account: a6qff7-hadar-zeigeson
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5043898
+bundleId: 5212877
+url: https://a6qff7-hadar-zeigeson.shinyapps.io/Reddit_Speaks/
+when: 1636034339.315
+lastSyncTime: 1636034339.315
+asMultiple: FALSE
+asStatic: FALSE

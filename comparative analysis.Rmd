@@ -52,6 +52,18 @@ jm_titl <- jm_vd_titl %>% select(text,pos,neg)
 jm_post <- jm_vd_post %>% select(text,pos,neg)
 jm_comm <- jm_vd_comm %>% select(text,pos,neg)
 
+# unique threads and posts
+dc_titl <- unique(dc_titl)
+jm_titl <- unique(jm_titl)
+dc_post <- unique(dc_post)
+jm_post <- unique(jm_post)
+
+write.csv(dc_titl, "dc_titl_unique.csv")
+write.csv(dc_post, "dc_post_unique.csv")
+write.csv(jm_titl, "jm_titl_unique.csv")
+write.csv(jm_post, "jm_post_unique.csv")
+
+
 ```
 
 # write reduced files into csvs
@@ -94,7 +106,7 @@ write.csv(jm_comm, "jm_comm.csv", row.names = F)
 
 ggplot() + 
   geom_density(aes(x=jm_vd_titl$pos))
-  geom_density(aes(x=cd_vd_titl$pos))
+  geom_density(aes(x=dc_vd_titl$pos))
     
 # time series
 

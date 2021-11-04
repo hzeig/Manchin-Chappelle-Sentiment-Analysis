@@ -1,0 +1,13 @@
+name: shiny_app
+title: shiny_app
+username:
+account: a6qff7-hadar-zeigeson
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5043622
+bundleId: 5212753
+url: https://a6qff7-hadar-zeigeson.shinyapps.io/shiny_app/
+when: 1636032391.28737
+lastSyncTime: 1636032391.28737
+asMultiple: FALSE
+asStatic: FALSE
