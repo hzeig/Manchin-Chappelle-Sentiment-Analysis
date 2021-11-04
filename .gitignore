@@ -1,4 +1,4 @@
-
+# data files
 dc_comm.csv
 dc_full.csv
 dc_post.csv
@@ -6,7 +6,6 @@ dc_titl.csv
 dccomments.csv
 dcsubreddits.csv
 dcthreads.csv
-
 jm_comm.csv
 jm_full.csv
 jm_post.csv
@@ -14,8 +13,6 @@ jm_titl.csv
 jmcomments.csv
 jmsubreddits.csv
 jmthreads.csv
-
-
 ./shiny_app/dc_comm.csv
 ./shiny_app/dc_full.csv
 ./shiny_app/dc_post.csv
