@@ -3,6 +3,8 @@ library(dplyr)
 library(ggplot2)
 library(egg)
 library(wordcloud2)
+library(lubridate)
+library(scales)
 
 # reddit controversy colour palette                
 pal <- c("#FF5700", "black", "#858B8E", "white")
@@ -83,38 +85,31 @@ p1 <- ggplot() +
   geom_histogram(dc_titl, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
   geom_histogram(jm_titl, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
   labs(title = "Distribution of Positive Sentiment in Titles") +
-  xlab("positive sentiment") +
+  xlab("level of positivity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
-
-# p1 <- ggplot() + 
-#   geom_density(dc_titl, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
-#   geom_density(jm_titl, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
-#   labs(title = "Distribution of Positive Sentiment in Titles") +
-#   xlab("positive sentiment") +
-#   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p2 <- ggplot() + 
   geom_point(dc_titl_score, 
              mapping=aes(x= pos, 
                          y=thread.score, 
                          size = thread.number.comments,
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_titl_score, 
              mapping = aes(x= pos, 
                            y=thread.score, 
                            size = thread.number.comments, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Positive Sentiment of Title vs Thread Upvotes") +
-  labs(x="positive sentiment", y="number of upvotes", size = "Number of Comments") +
+  labs(x="level of positivity in sentiment", y="number of upvotes", size = "Number of Comments") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 ########### neg ########
 
 p3 <- ggplot() + 
-  geom_density(dc_titl, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
-  geom_density(jm_titl, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
+  geom_histogram(dc_titl, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
+  geom_histogram(jm_titl, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
   labs(title = "Distribution of Title Negative Sentiment in Titles") +
-  xlab("negative sentiment") +
+  xlab("level of negativity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p4 <- ggplot() + 
@@ -122,14 +117,14 @@ p4 <- ggplot() +
              mapping=aes(x= neg, 
                          y=thread.score, 
                          size = thread.number.comments,
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_titl_score, 
              mapping = aes(x= neg, 
                            y=thread.score, 
                            size = thread.number.comments, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Negative Sentiment of Title vs Thread Upvotes") +
-  labs(x="negative sentiment", y="number of upvotes", size = "Number of Comments") +
+  labs(x="level of negativity in sentiment", y="number of upvotes", size = "Number of Comments") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 
@@ -137,10 +132,10 @@ p4 <- ggplot() +
 ####### pos ######
 
 p5 <- ggplot() + 
-  geom_density(dc_post, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
-  geom_density(jm_post, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
-  labs(title = "Distribition of Positive Sentiment in Posts") +
-  xlab("positive sentiment") +
+  geom_histogram(dc_post, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
+  geom_histogram(jm_post, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
+  labs(title = "Distribition of level of positivity in sentiment in Posts") +
+  xlab("level of positivity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p6 <- ggplot() + 
@@ -148,23 +143,23 @@ p6 <- ggplot() +
              mapping=aes(x= pos, 
                          y=thread.score, 
                          size = thread.number.comments,
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_post_score, 
              mapping = aes(x= pos, 
                            y=thread.score, 
                            size = thread.number.comments, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Positive Sentiment of Post vs Thread Upvotes") +
-  labs(x="positive sentiment", y="number of upvotes", size = "Number of Comments") +
+  labs(x="level of positivity in sentiment", y="number of upvotes", size = "Number of Comments") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 ####### neg ######
 
 p7 <- ggplot() + 
-  geom_density(dc_post, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
-  geom_density(jm_post, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
+  geom_histogram(dc_post, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
+  geom_histogram(jm_post, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
   labs(title = "Distribition of Negative Sentiment in Posts") +
-  xlab("negative sentiment") +
+  xlab("level of negativity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p8 <- ggplot() + 
@@ -172,65 +167,221 @@ p8 <- ggplot() +
              mapping=aes(x= neg, 
                          y=thread.score, 
                          size = thread.number.comments,
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_post_score, 
              mapping = aes(x= neg, 
                            y=thread.score, 
                            size = thread.number.comments, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Negative Sentiment of Post vs Thread Upvotes") +
-  labs(x="negative sentiment", y="number of upvotes", size = "Number of Comments") +
+  labs(x="level of negativity in sentiment", y="number of upvotes", size = "Number of Comments") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 ################################## Comment ##############
 ######## pos #########
 
 p9 <- ggplot() + 
-  geom_density(dc_comm, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
-  geom_density(jm_comm, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
+  geom_histogram(dc_comm, mapping=aes(x= pos, fill="Dave Chapelle"), alpha = .4) +
+  geom_histogram(jm_comm, mapping = aes(x = pos, fill="Joe Manchin"), alpha = .4) +
   labs(title = "Distribution of Positive Sentiment in Comments") +
-  xlab("positive sentiment") +
+  xlab("level of positivity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p10 <- ggplot() + 
   geom_point(dc_comment_score, 
              mapping=aes(x= pos, 
                          y=comment.score, 
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_comment_score, 
              mapping = aes(x= pos, 
                            y=comment.score, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Positive Sentiment of Comment vs Comment Upvotes") +
-  labs(x="positive sentiment", y="number of upvotes") +
+  labs(x="level of positivity in sentiment", y="number of upvotes") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 
 ######## neg ########
 
 p11 <- ggplot() + 
-  geom_density(dc_comm, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
-  geom_density(jm_comm, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
+  geom_histogram(dc_comm, mapping=aes(x= neg, fill="Dave Chapelle"), alpha = .4) +
+  geom_histogram(jm_comm, mapping = aes(x = neg, fill="Joe Manchin"), alpha = .4) +
   labs(title = "Distribition of Negative Sentiment in Comments") +
-  xlab("negative sentiment") +
+  xlab("level of negativity in sentiment") +
   scale_fill_manual(name="Controversy", values = c("#FF5700","black"))
 
 p12 <- ggplot() + 
   geom_point(dc_comment_score, 
              mapping=aes(x= neg, 
                          y=comment.score, 
-                         color="Dave Chapelle")) +
+                         color="Dave Chapelle"), alpha = .4) +
   geom_point(jm_comment_score, 
              mapping = aes(x= neg, 
                            y=comment.score, 
-                           color="Joe Manchin")) +
+                           color="Joe Manchin"), alpha = .4) +
   labs(title = "Negative Sentiment of Comment vs Comment Upvotes") +
-  labs(x="Negative sentiment", y="number of upvotes") +
+  labs(x="level of negativity in sentiment", y="number of upvotes") +
   scale_color_manual(name="Controversy", values = c("#FF5700","black"))
 
 
+### Tab Four - Time Series ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-### Tab Three - Text Collection by Sentiment ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##### DATE PREP ##### add date to vader files ##### 
+#~~~~~~~~~~~~~~~~~~~~DC~~~~~~~~~~~~~~~~~~~~~~~#
+# title
+r <- select(dc_titl, title=text, pos, neg)
+t <- select(dc_full, title, date=thread.date)
+s <- unique(t)
+dc_titl_date <-merge(s, r, by = "title")
+
+# post
+r <- select(dc_post, post=text, pos, neg)
+t <- select(dc_full, post, date=thread.date)
+s <- unique(t)
+dc_post_date <-merge(s, r, by = "post")
+
+# comment
+r <- select(dc_comm, comment=text, pos, neg)
+t <- select(dc_full, comment, date=comment.date)
+dc_comment_date <-merge(t, r, by = "comment")
+dc_comm_date <- unique(dc_comment_date)
+
+#~~~~~~~~~~~~~~~~~~~JM~~~~~~~~~~~~~~~~~~~~~~~~#
+# title
+r <- select(jm_titl, title=text, pos, neg)
+t <- select(jm_full, title, date=thread.date)
+s <- unique(t)
+jm_titl_date <-merge(s, r, by = "title")
+
+# post
+r <- select(jm_post, post=text, pos, neg)
+t <- select(jm_full, post, date=thread.date)
+s <- unique(t)
+jm_post_date <-merge(s, r, by = "post")
+
+# comment
+r <- select(jm_comm, comment=text, pos, neg)
+t <- select(jm_full, comment, date=comment.date)
+jm_comment_date <-merge(t, r, by = "comment")
+jm_comm_date <- unique(jm_comment_date)
+
+
+# lubridate dfs
+
+dc_titl_date$date <- ymd(dc_titl_date$date)
+dc_post_date$date <- ymd(dc_post_date$date)
+dc_comm_date$date <- ymd(dc_comm_date$date)
+jm_titl_date$date <- ymd(jm_titl_date$date)
+jm_post_date$date <- ymd(jm_post_date$date)
+jm_comm_date$date <- ymd(jm_comm_date$date)
+
+################ PLOTS ###################################
+################################### Title ################
+#### pos ####
+e <- ggplot() +
+  geom_line(dc_titl_date, 
+            mapping = aes(x=date, 
+                          y=pos, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_titl_date, 
+            mapping = aes(x=date,
+                          y=pos,
+                          color="Joe Manchin")) +
+  labs(title="Positive Sentiment of Titles over Time",
+       x="date", y="level of positivity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+#### neg ####
+
+f <- ggplot() +
+  geom_line(dc_titl_date, 
+            mapping = aes(x=date, 
+                          y=neg, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_titl_date, 
+            mapping = aes(x=date,
+                          y=neg,
+                          color="Joe Manchin")) +
+  labs(title="Negative Sentiment of Titles over Time",
+       x="date", y="level of negativity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+
+
+#####################3############## Post ################
+#### pos ####
+
+g <- ggplot() +
+  geom_line(dc_post_date, 
+            mapping = aes(x=date, 
+                          y=pos, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_post_date, 
+            mapping = aes(x=date,
+                          y=pos,
+                          color="Joe Manchin")) +
+  labs(title="Positive Sentiment of Posts over Time",
+       x="date", y="level of positivity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+
+#### neg ####
+
+h <- ggplot() +
+  geom_line(dc_post_date, 
+            mapping = aes(x=date, 
+                          y=neg, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_post_date, 
+            mapping = aes(x=date,
+                          y=neg,
+                          color="Joe Manchin")) +
+  labs(title="Negative Sentiment of Posts over Time",
+       x="date", y="level of negativity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+
+################################### Comment ###############
+##### pos ####
+
+i <- ggplot() +
+  geom_line(dc_comm_date, 
+            mapping = aes(x=date, 
+                          y=pos, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_comm_date, 
+            mapping = aes(x=date,
+                          y=pos,
+                          color="Joe Manchin")) +
+  labs(title="Positive Sentiment of Comments over Time",
+       x="date", y="level of positivity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+
+##### neg ####
+
+j <- ggplot() +
+  geom_line(dc_comm_date, 
+            mapping = aes(x=date, 
+                          y=neg, 
+                          color="Dave Chappelle")) + 
+  geom_line(jm_comm_date, 
+            mapping = aes(x=date,
+                          y=neg,
+                          color="Joe Manchin")) +
+  labs(title="Negative Sentiment of Comments over Time",
+       x="date", y="level of negativity in sentiment") +
+  scale_x_date(labels=date_format ("%b %y")) +
+  scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
+
+
+
+### Tab Five - Text Collection by Sentiment ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # All
 # pos
@@ -256,7 +407,7 @@ p12 <- ggplot() +
 
 
 
-### Tab Four - Subreddit Stats top 5 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Tab Six - Subreddit Stats top 5 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # number of threads
 
@@ -270,15 +421,13 @@ p12 <- ggplot() +
 
 
 
-### Tab Five - Wordcloud ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Tab Seven - Wordcloud ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # all
 
 # dc
 
 # jm
-
-
 
 
 
@@ -347,6 +496,29 @@ ui <- navbarPage(inverse = TRUE, "Reddit Speaks",
                                                        h5("Choose a text type to see how reddit-user sentiments compare across controversies."),
                                                        br(),
                                                        plotOutput("comparison")
+                                                       
+                                                    )
+                                                  ))
+                          )
+                 ),
+                 
+                 
+                 # Third Page  - Time Series      
+                 tabPanel("Trends",
+                          fluidPage(sidebarLayout(position = "right",
+                                                  sidebarPanel(style = "background: #FF5700",
+                                                               wellPanel(style = "background: white",
+                                                                         selectInput("text_type_time", 
+                                                                                     "Text Type", 
+                                                                                     choices = list("title", "post", "comment", "Select Text"),
+                                                                                     selected = "Select Text")
+                                                               )),
+                                                  mainPanel(
+                                                    h3("Comparing Sentiments Over Time",
+                                                       br(),
+                                                       h5("Choose a text type to see how reddit-user sentiments have changed over a month."),
+                                                       br(),
+                                                       plotOutput("time_series")
                                                        
                                                     )
                                  ))
@@ -429,7 +601,7 @@ ui <- navbarPage(inverse = TRUE, "Reddit Speaks",
                                                                                      selected = "Select Topic")
                                                                )),
                                                   mainPanel(
-                                                    h3("Top 10s - Subreddit",
+                                                    h3("Subreddit-Specific Statistics",
                                                        br(),
                                                        h5("Choose a topic to see the top ten subreddits in that measure."),
                                                        br(),
@@ -452,7 +624,7 @@ ui <- navbarPage(inverse = TRUE, "Reddit Speaks",
                  
                  
                  # Fifth Page - WordClouds      
-                 tabPanel("Clouds",
+                 tabPanel("Wordlouds",
                           fluidPage(sidebarLayout(position = "right",
                                                   sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",
@@ -506,8 +678,8 @@ ui <- navbarPage(inverse = TRUE, "Reddit Speaks",
                   # Sixth Page - NLP Notes and Future Steps
                   tabPanel("Notes",
                            fluidPage(h3("Technological Niavity")),
-                                     h5("Due to the", strong("niche use of language within individual subreddits"),
-                                        ", sentiment evaluations in this project are subject to a potentially large margin of error."),
+                                     h5("Due to the", strong("niche use of language within individual subreddits,"),
+                                        "sentiment evaluations in this project are subject to a potentially large margin of error."),
                                      p("Luckily, solutions to this issue exist. A project by", a("William L. Hamilton, Kevin Clark, Jure Leskovec, and Dan Jurafsky", href = "https://arxiv.org/abs/1606.02820"), 
                                        ",", em("Inducing Domain-Specific Sentiment Lexicons from Unlabeled Corpora"), 
                                        "(2016) contains code that could be adapted to create unsupervised machine learning models that automatically generate and update individualized lexicon dictionaries for every subreddit scraped.", 
@@ -558,7 +730,15 @@ server <- function(input, output) {
            "comment" = c <- grid.arrange(p9, p10, p11, p12, nrow = 2),
            "Select Text" = NULL)
   })
-  # # Tab3 Reactives
+  # Tab3 Reactive
+  text_type_time <- reactive({
+    switch(input$text_type_time, 
+           "title" = grid.arrange(e,f, nrow = 2), 
+           "post" = grid.arrange(g, h, nrow = 2), 
+           "comment" = grid.arrange(i,j, nrow = 2),
+           "Select Text" = NULL)
+  })
+  # # Tab4 Reactives
   # controversy <- reactive({
   #   switch(input$controversy,
   #          "Dave Chapelle" = ,
@@ -579,9 +759,10 @@ server <- function(input, output) {
   })
   
   # # Tab3 Outputs
-  # output$distPlot <- renderPlot({
-  #   hist(rnorm(input$obs))
-  # })
+  output$time_series <- renderPlot({
+    plot <- text_type_time()
+    print(plot)
+  })
 }
 
 
