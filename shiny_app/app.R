@@ -292,6 +292,7 @@ e <- ggplot() +
   scale_x_date(labels=date_format ("%b %y")) +
   scale_color_manual(name="Controversy", values = c("#FF5700","black")) 
 
+
 #### neg ####
 
 f <- ggplot() +
