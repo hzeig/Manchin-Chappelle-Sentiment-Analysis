@@ -625,7 +625,7 @@ ui <- navbarPage(inverse = TRUE, "Reddit Speaks",
                  
                  
                  # Fifth Page - WordClouds      
-                 tabPanel("Wordlouds",
+                 tabPanel("Wordclouds",
                           fluidPage(sidebarLayout(position = "right",
                                                   sidebarPanel(style = "background: #FF5700",
                                                                wellPanel(style = "background: white",

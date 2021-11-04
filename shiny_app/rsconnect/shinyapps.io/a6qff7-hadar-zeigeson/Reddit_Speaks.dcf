@@ -5,9 +5,9 @@ account: a6qff7-hadar-zeigeson
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5043898
-bundleId: 5214597
+bundleId: 5214660
 url: https://a6qff7-hadar-zeigeson.shinyapps.io/Reddit_Speaks/
-when: 1636059498.28476
-lastSyncTime: 1636059498.28476
+when: 1636060489.42847
+lastSyncTime: 1636060489.42847
 asMultiple: FALSE
 asStatic: FALSE
